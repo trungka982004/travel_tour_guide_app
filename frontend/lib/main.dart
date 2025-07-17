@@ -12,6 +12,7 @@ class ResortApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Carmelina Resort App',
       theme: ThemeData(
         fontFamily: 'Roboto',
@@ -47,12 +48,6 @@ class ResortMainShell extends StatefulWidget {
 
 class _ResortMainShellState extends State<ResortMainShell> {
   int _selectedIndex = 0;
-  final List<Widget> _screens = [
-    HomeScreen(),
-    ActivitiesScreen(), // Use as Explore for now
-    BookingScreen(),
-    SettingsScreen(), // Use as Profile for now
-  ];
   final List<String> _titles = [
     'Home',
     'Explore',
@@ -60,8 +55,20 @@ class _ResortMainShellState extends State<ResortMainShell> {
     'Profile',
   ];
 
+  void _onTabChange(int i) {
+    setState(() {
+      _selectedIndex = i;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      HomeScreen(onTabChange: (i) => _onTabChange(i)),
+      ActivitiesScreen(),
+      BookingScreen(),
+      SettingsScreen(),
+    ];
     return Scaffold(
       extendBody: true,
       body: Container(
@@ -72,7 +79,7 @@ class _ResortMainShellState extends State<ResortMainShell> {
             colors: [Color(0xFFE3F0FF), Colors.white],
           ),
         ),
-        child: SafeArea(child: _screens[_selectedIndex]),
+        child: SafeArea(child: screens[_selectedIndex]),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
