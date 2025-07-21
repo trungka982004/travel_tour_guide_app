@@ -93,94 +93,114 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F7FA),
+      backgroundColor: Color(0xFFE0F7FA),
       appBar: AppBar(
-        title: Text('Excursions'),
-        leading: BackButton(),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Gradient Header
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1976D2), Color(0xFFE3F0FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Outdoor Adventures', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Text('Discover the best excursions around Carmelina Resort!', style: TextStyle(color: Colors.white70, fontSize: 15)),
-                ],
-              ),
+        title: Text('Excursions', style: TextStyle(color: Colors.white)),
+        leading: BackButton(color: Colors.white),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF0288D1), Color(0xFF00ACC1)],
             ),
-            if (bookings.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-                child: Text('Tour đã đặt', style: Theme.of(context).textTheme.titleLarge),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Gradient Header
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0288D1), Color(0xFF80DEEA)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Outdoor Adventures', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 8),
+                    Text('Discover the best excursions around Carmelina Resort!', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                  ],
+                ),
               ),
+              if (bookings.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
+                  child: Text('Tour đã đặt', style: TextStyle(color: Color(0xFF01579B), fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
+                    children: bookings.map((b) => Card(
+                      color: Color(0xFFD1E8F1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
+                        title: Text(b['title'] ?? '', style: TextStyle(color: Color(0xFF01579B))),
+                        subtitle: Text('Ngày: ${b['date'] != null ? DateTime.parse(b['date'] as String).day.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).month.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).year.toString() : ''}\nKhách: ${b['guests']}\nDịch vụ: ${(b['services'] as List<String>).join(', ')}'),
+                      ),
+                    )).toList(),
+                  ),
+                ),
+              ],
+              SizedBox(height: 24),
+              // Top Recommendation (Horizontal Scroll)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text('Top Recommendation', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              SizedBox(height: 12),
+              Container(
+                height: 220,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  children: excursions.take(3).map((e) => _excursionCard(context, e, featured: true, showStars: true)).toList(),
+                ),
+              ),
+              SizedBox(height: 24),
+              // All Excursions (Grid)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text('All Excursions', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Column(
-                  children: bookings.map((b) => Card(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: ListTile(
-                      leading: Icon(Icons.event_available, color: Color(0xFF1976D2)),
-                      title: Text(b['title'] ?? ''),
-                      subtitle: Text('Ngày: ${b['date'] != null ? DateTime.parse(b['date'] as String).day.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).month.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).year.toString() : ''}\nKhách: ${b['guests']}\nDịch vụ: ${(b['services'] as List<String>).join(', ')}'),
-                    ),
-                  )).toList(),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.85,
+                  children: excursions.map((e) => _excursionCard(context, e)).toList(),
                 ),
               ),
+              SizedBox(height: 32),
             ],
-            SizedBox(height: 24),
-            // Top Recommendation (Horizontal Scroll)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text('Top Recommendation', style: Theme.of(context).textTheme.titleLarge),
-            ),
-            SizedBox(height: 12),
-            Container(
-              height: 220,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                children: excursions.take(3).map((e) => _excursionCard(context, e, featured: true, showStars: true)).toList(),
-              ),
-            ),
-            SizedBox(height: 24),
-            // All Excursions (Grid)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text('All Excursions', style: Theme.of(context).textTheme.titleLarge),
-            ),
-            SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.85,
-                children: excursions.map((e) => _excursionCard(context, e)).toList(),
-              ),
-            ),
-            SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
       floatingActionButton: QuickSupportButton(
@@ -196,7 +216,11 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
         width: featured ? 260 : null,
         margin: featured ? EdgeInsets.only(right: 16) : null,
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFD1E8F1), Color(0xFF80DEEA)],
+          ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
           image: DecorationImage(
@@ -286,15 +310,15 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                 SizedBox(height: 14),
                 Row(
                   children: [
-                    Icon(Icons.place, color: Color(0xFF1976D2)),
+                    Icon(Icons.place, color: Color(0xFF80DEEA)),
                     SizedBox(width: 6),
-                    Text(excursion['distance'] as String? ?? '', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1976D2))),
+                    Text(excursion['distance'] as String? ?? '', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF80DEEA))),
                   ],
                 ),
                 SizedBox(height: 10),
                 Text(
                   excursion['title'] as String,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1976D2)),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF01579B)),
                 ),
                 SizedBox(height: 8),
                 Text(
@@ -309,7 +333,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text('Close', style: TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold)),
+                        child: Text('Close', style: TextStyle(color: Color(0xFF80DEEA), fontWeight: FontWeight.bold)),
                       ),
                       SizedBox(width: 8),
                       ElevatedButton(
@@ -319,7 +343,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                         },
                         child: Text('Book Now'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1976D2),
+                          backgroundColor: Color(0xFF80DEEA),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -367,13 +391,13 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                       ),
                     ),
                   ),
-                  Text('Đặt tour', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1976D2))),
+                  Text('Đặt tour', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
                   SizedBox(height: 12),
                   Text('Tên tour: ${excursion['title']}', style: TextStyle(fontWeight: FontWeight.w600)),
                   SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.date_range, color: Color(0xFF1976D2)),
+                      Icon(Icons.date_range, color: Color(0xFF80DEEA)),
                       SizedBox(width: 8),
                       Text(selectedDate == null ? 'Chọn ngày bắt đầu' : 'Ngày: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'),
                       SizedBox(width: 8),
@@ -389,7 +413,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                         },
                         child: Text('Chọn'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1976D2),
+                          backgroundColor: Color(0xFF80DEEA),
                           foregroundColor: Colors.white,
                           minimumSize: Size(60, 32),
                         ),
@@ -399,7 +423,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                   SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.people, color: Color(0xFF1976D2)),
+                      Icon(Icons.people, color: Color(0xFF80DEEA)),
                       SizedBox(width: 8),
                       Text('Số lượng khách:'),
                       SizedBox(width: 8),
@@ -465,7 +489,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                         },
                         child: Text('Booking'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF1976D2),
+                          backgroundColor: Color(0xFF80DEEA),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -496,4 +520,4 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       ),
     );
   }
-} 
+}

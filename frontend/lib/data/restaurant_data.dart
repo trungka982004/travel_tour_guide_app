@@ -1,0 +1,93 @@
+final List<Map<String, dynamic>> dishes = [
+  {
+    'name': 'Seafood Platter',
+    'image': 'assets/restaurant/seafood.png',
+    'price': '350.000 VNĐ',
+    'rating': 5,
+    'desc': 'Tươi ngon, đa dạng hải sản.',
+    'type': 'Hải sản',
+    'pdf': 'assets/restaurant/seafood.pdf',
+  },
+  {
+    'name': 'Vietnamese Cuisine',
+    'image': 'assets/restaurant/vietnam_cuisine.png',
+    'price': '250.000 VNĐ',
+    'rating': 4,
+    'desc': 'Món Việt truyền thống.',
+    'type': 'Món chính',
+    'pdf': 'assets/restaurant/vietnam_cuisine.pdf',
+  },
+  {
+    'name': 'Western Cuisine',
+    'image': 'assets/restaurant/western_cuisine.png',
+    'price': '300.000 VNĐ',
+    'rating': 4,
+    'desc': 'Ẩm thực phương Tây đặc sắc.',
+    'type': 'Món chính',
+    'pdf': 'assets/restaurant/western_cuisine.pdf',
+  },
+  {
+    'name': 'Delicious Noodles',
+    'image': 'assets/restaurant/noodles.jpg',
+    'price': '120.000 VNĐ',
+    'rating': 4,
+    'desc': 'Mì ngon, đậm đà hương vị.',
+    'type': 'Món chính',
+  },
+  {
+    'name': 'Fried Food Platter',
+    'image': 'assets/restaurant/fried_food.jpg',
+    'price': '150.000 VNĐ',
+    'rating': 4,
+    'desc': 'Đồ chiên giòn rụm, hấp dẫn.',
+    'type': 'Hải sản',
+  },
+  {
+    'name': 'Sweet Dessert',
+    'image': 'assets/restaurant/desert.jpg',
+    'price': '80.000 VNĐ',
+    'rating': 5,
+    'desc': 'Tráng miệng ngọt ngào, thơm ngon.',
+    'type': 'Tráng miệng',
+  },
+  {
+    'name': 'Fresh Shrimp',
+    'image': 'assets/restaurant/shrimp.jpg',
+    'price': '180.000 VNĐ',
+    'rating': 5,
+    'desc': 'Tôm tươi hấp dẫn.',
+    'type': 'Hải sản',
+  },
+  {
+    'name': 'Grilled Fish',
+    'image': 'assets/restaurant/fish.jpg',
+    'price': '200.000 VNĐ',
+    'rating': 4,
+    'desc': 'Cá nướng thơm ngon.',
+    'type': 'Hải sản',
+  },
+  {
+    'name': 'Vegetable Plate',
+    'image': 'assets/restaurant/vegetable.jpg',
+    'price': '90.000 VNĐ',
+    'rating': 3,
+    'desc': 'Rau củ tươi sạch.',
+    'type': 'Rau củ',
+  },
+  {
+    'name': 'Fruit Dessert',
+    'image': 'assets/restaurant/fruit.jpg',
+    'price': '60.000 VNĐ',
+    'rating': 4,
+    'desc': 'Tráng miệng trái cây.',
+    'type': 'Tráng miệng',
+  },
+];
+
+final Map<String, String> cuisineInfo = {
+  'Vietnamese Cuisine': 'Nguyên liệu đa dạng và cách trình bày hấp dẫn – các món ăn Việt Nam là sự pha trộn độc đáo giữa ẩm thực tây phương và hương vị truyền thống đậm đà được lưu giữ qua hàng thế kỷ. Tại Carmelina Beach Resort, đội ngũ đầu bếp tận tâm của chúng tôi tận dụng các kỹ thuật nấu ăn bản địa, kết hợp với xu hướng thế giới hiện đại để tạo nên một sự hòa quyện vị giác tuyệt vời đem đến cho Quý khách những trải nghiệm ẩm thực đáng nhớ.',
+  'Western Cuisine': 'Kỳ nghỉ dưỡng sẽ càng trọn vẹn hơn với các lựa chọn ẩm thực phong phú và cao cấp. Thực đơn món Âu tại Nhà hàng Azzurri bao gồm những đĩa bít-tết ngọt mềm, súp kem béo ngậy, rau củ quả tươi xanh mới được thu hoạch từ sân vườn, các món mì Ý, bánh mì kẹp thịt, pizza, các đĩa bánh ngọt đẹp mắt và vừa miệng chắc chắn sẽ làm hài lòng ngay cả những vị Khách khó tính nhất.',
+  'Seafood Platter': 'Tọa lạc ven biển với lợi thế nguồn tài nguyên hải sản dồi dào, Hồ Tràm là nơi lý tưởng để bạn “lấp đầy bụng” với các loại hải sản tươi ngon. Một số món ăn nổi bật mà thực Khách không nên bỏ qua khi thưởng thức bữa trưa và tối tại Nhà hàng Marina: tôm xào trà, cá sùn sịn chiên giòn, lẩu cua đồng, hàu nướng phô mai và đặc biệt là món đặc sản lẩu cháo Carmelina.',
+};
+
+final List<String> filters = ['Tất cả', 'Hải sản', 'Tráng miệng', 'Món chính']; 
