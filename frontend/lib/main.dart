@@ -66,7 +66,7 @@ class _ResortMainShellState extends State<ResortMainShell> {
     final List<Widget> screens = [
       HomeScreen(onTabChange: (i) => _onTabChange(i)),
       ActivitiesScreen(),
-      BookingScreen(),
+      BookingScreen(onBackToHome: (i) => _onTabChange(i)),
       SettingsScreen(),
     ];
     return Scaffold(
