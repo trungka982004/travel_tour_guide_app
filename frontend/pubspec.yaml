@@ -60,6 +60,13 @@ flutter:
   assets:
     - assets/home/
     - assets/activites/
+    - assets/activites/beach/
+    - assets/activites/pool/
+    - assets/activites/kid_activities/
+    - assets/activites/garden/
+    - assets/activites/spa_fitness/
+    - assets/activites/sport/
+    - assets/activites/karaoke_cinema/
     - assets/rooms/
     - assets/restaurant/
     - assets/excursions/

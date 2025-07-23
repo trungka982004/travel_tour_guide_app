@@ -1,201 +1,156 @@
 import 'package:flutter/material.dart';
-import '../widgets/quick_support_button.dart';
 
 class ServicesScreen extends StatefulWidget {
+  const ServicesScreen({Key? key}) : super(key: key);
+
   @override
   State<ServicesScreen> createState() => _ServicesScreenState();
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  String selectedFilter = 'Tất cả';
-  String selectedSort = 'Gần nhất';
-  bool showServicesError = false;
-  bool showOrderError = false;
-  List<Map<String, dynamic>> services = [
+  List<Map<String, dynamic>> availableServices = [
     {
-      'type': 'Đưa rước',
-      'name': 'Đưa rước sân bay',
-      'hours': '08:00-20:00',
-      'available': true,
-      'details': ['Xe 4 chỗ', 'Xe 7 chỗ'],
+      'name': 'Đưa đón sân bay',
+      'icon': Icons.airport_shuttle,
+      'options': ['4 chỗ', '7 chỗ', '16 chỗ'],
+      'unitLabel': 'chỗ'
     },
     {
-      'type': 'Bơi',
-      'name': 'Bộ bơi nam',
-      'hours': '08:00-18:00',
-      'available': true,
-      'details': ['Size M', 'Size L'],
+      'name': 'Đồ bơi',
+      'icon': Icons.pool,
+      'options': ['S', 'M', 'L', 'XL'],
+      'unitLabel': 'bộ'
     },
     {
-      'type': 'Giặt ủi',
-      'name': 'Dịch vụ giặt ủi',
-      'hours': '09:00-17:00',
-      'available': false,
-      'details': ['Áo sơ mi', 'Quần dài'],
+      'name': 'Vật dụng chuyên dụng',
+      'icon': Icons.construction,
+      'options': ['Lều', 'Vợt cầu lông', 'Ghế xếp'],
+      'unitLabel': 'món'
+    },
+    {
+      'name': 'Xe lăn',
+      'icon': Icons.accessible,
+      'options': ['Có người đẩy', 'Tự điều khiển'],
+      'unitLabel': 'xe'
+    },
+    {
+      'name': 'Dụng cụ tập gym',
+      'icon': Icons.fitness_center,
+      'options': ['Tạ đơn', 'Dây kháng lực'],
+      'unitLabel': 'món'
+    },
+    {
+      'name': 'Thuyền kayak',
+      'icon': Icons.sailing,
+      'options': ['1 người', '2 người'],
+      'unitLabel': 'thuyền'
+    },
+    {
+      'name': 'Áo choàng tắm',
+      'icon': Icons.checkroom,
+      'options': ['S', 'M', 'L'],
+      'unitLabel': 'áo'
+    },
+    {
+      'name': 'Đèn pin ban đêm',
+      'icon': Icons.flashlight_on,
+      'options': ['Loại nhỏ', 'Loại lớn'],
+      'unitLabel': 'cái'
+    },
+    {
+      'name': 'Ô dù che nắng',
+      'icon': Icons.umbrella,
+      'options': ['Nhỏ', 'Trung bình', 'Lớn'],
+      'unitLabel': 'cái'
+    },
+    {
+      'name': 'Ván trượt nước',
+      'icon': Icons.surfing,
+      'options': ['Beginner', 'Pro'],
+      'unitLabel': 'ván'
     },
   ];
-  List<Map<String, dynamic>> order = [];
-  List<String> filters = ['Tất cả', 'Đưa rước', 'Bơi', 'Giặt ủi'];
-  List<String> sorts = ['Gần nhất', 'Phổ biến'];
 
-  List<Map<String, dynamic>> get filteredServices {
-    if (selectedFilter == 'Tất cả') return services;
-    return services.where((s) => s['type'] == selectedFilter).toList();
-  }
+  List<Map<String, dynamic>> currentOrders = [];
 
-  void _addService(BuildContext context, Map<String, dynamic> service) {
-    if (!service['available']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Dịch vụ hết, chọn khác')),
-      );
-      return;
-    }
-    // Simulate add form
-    showDialog(
-      context: context,
-      builder: (context) {
-        String? detail;
-        DateTime? date;
-        TimeOfDay? time;
-        return StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: Text('Thêm dịch vụ - ${service['name']}'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: detail,
-                  hint: Text('Chi tiết'),
-                  items: (service['details'] as List)
-                      .map((d) => DropdownMenuItem<String>(value: d as String, child: Text(d as String)))
-                      .toList(),
-                  onChanged: (v) => setState(() => detail = v),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
-                    );
-                    if (picked != null) setState(() => date = picked);
-                  },
-                  child: Text(date == null ? 'Chọn ngày' : '${date!.day.toString().padLeft(2, '0')}/${date!.month.toString().padLeft(2, '0')}/${date!.year}'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    );
-                    if (picked != null) setState(() => time = picked);
-                  },
-                  child: Text(time == null ? 'Chọn giờ' : time!.format(context)),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Hủy'),
-              ),
-              ElevatedButton(
-                onPressed: (detail != null && date != null && time != null)
-                    ? () {
-                        setState(() {
-                          order.add({
-                            'service': service['name'],
-                            'detail': detail,
-                            'date': date,
-                            'time': time,
-                          });
-                        });
-                        Navigator.pop(context);
-                      }
-                    : null,
-                child: Text('Thêm vào đơn'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1976D2),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  void _selectService(Map<String, dynamic> service, int index) {
+    String? selectedOption = service['options'][0];
+    int quantity = 1;
 
-  void _editOrder(int index) {
-    setState(() => order.removeAt(index));
-  }
-
-  void _deleteOrder(int index) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Xóa mục này?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => order.removeAt(index));
-              Navigator.pop(context);
-            },
-            child: Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmOrder() {
-    if (order.isEmpty) {
-      setState(() => showOrderError = true);
-      return;
-    }
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Đặt thành công'),
+        title: Text('Chọn thông tin cho ${service['name']}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: order.map((item) => Text('${item['service']}, ${item['date'].day.toString().padLeft(2, '0')}/${item['date'].month.toString().padLeft(2, '0')}/${item['date'].year}, ${item['time'].format(context)}, ${item['detail']}')).toList(),
+          children: [
+            DropdownButton<String>(
+              value: selectedOption,
+              isExpanded: true,
+              onChanged: (value) {
+                setState(() {
+                  selectedOption = value;
+                });
+              },
+              items: (service['options'] as List<String>)
+                  .map<DropdownMenuItem<String>>(
+                    (option) => DropdownMenuItem<String>(
+                      value: option,
+                      child: Text(option),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Số lượng:"),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () {
+                        if (quantity > 1) {
+                          setState(() {
+                            quantity--;
+                          });
+                        }
+                      },
+                    ),
+                    Text(quantity.toString()),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          quantity++;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            )
+          ],
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              setState(() => order.clear());
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: Text('Quay lại Trang chủ'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _clearOrder() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Hủy tất cả?'),
-        actions: [
-          TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Không'),
+            child: const Text("Hủy"),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
-              setState(() => order.clear());
+              setState(() {
+                currentOrders.add({
+                  'service': service,
+                  'option': selectedOption,
+                  'quantity': quantity,
+                  'confirmed': false
+                });
+              });
               Navigator.pop(context);
             },
-            child: Text('Hủy'),
+            child: const Text("Xác nhận"),
           ),
         ],
       ),
@@ -205,174 +160,81 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Dịch vụ'),
-        leading: BackButton(),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('Dịch vụ Resort')), 
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Filter & Sort Bar
-            Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: filters.map((f) => Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(f),
-                          selected: selectedFilter == f,
-                          onSelected: (_) => setState(() => selectedFilter = f),
-                          selectedColor: Color(0xFF1976D2),
-                          labelStyle: TextStyle(color: selectedFilter == f ? Colors.white : Color(0xFF1976D2)),
-                          backgroundColor: Color(0xFFF5F7FA),
-                        ),
-                      )).toList(),
-                    ),
-                  ),
-                ),
-                DropdownButton<String>(
-                  value: selectedSort,
-                  items: sorts.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                  onChanged: (v) => setState(() => selectedSort = v!),
-                  underline: SizedBox(),
-                ),
-              ],
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Các dịch vụ khả dụng:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-            SizedBox(height: 16),
-            // Service List
-            if (showServicesError)
-              Row(
-                children: [
-                  Expanded(child: Text('Không tải được dịch vụ, thử lại', style: TextStyle(color: Colors.red))),
-                  IconButton(
-                    icon: Icon(Icons.refresh, color: Color(0xFF1976D2)),
-                    onPressed: () => setState(() => showServicesError = false),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(availableServices.length, (index) {
+                var service = availableServices[index];
+                return ElevatedButton.icon(
+                  onPressed: () => _selectService(service, index),
+                  icon: Icon(service['icon']),
+                  label: Text(service['name']),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade50,
+                    foregroundColor: Colors.black,
                   ),
-                ],
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredServices.length,
-                  itemBuilder: (context, i) {
-                    final s = filteredServices[i];
-                    return Card(
-                      color: Color(0xFFF5F7FA),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      child: ListTile(
-                        leading: Icon(Icons.directions_car, color: Color(0xFF1976D2)),
-                        title: Text('${s['name']}, ${s['hours']}, ${s['available'] ? 'còn' : 'hết'}'),
-                        subtitle: Text(s['type']),
-                        trailing: ElevatedButton(
-                          onPressed: s['available'] ? () => _addService(context, s) : null,
-                          child: Text('Thêm vào đơn'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF1976D2),
-                            foregroundColor: Colors.white,
-                            minimumSize: Size(80, 32),
-                          ),
-                        ),
+                );
+              }),
+            ),
+            const Divider(height: 30),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Đơn hàng hiện tại:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ...currentOrders.map((order) {
+              final service = order['service'];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: ListTile(
+                  leading: Icon(service['icon'], color: Colors.deepOrange),
+                  title: Text(service['name']),
+                  subtitle: Text('${order['option']} - ${service['unitLabel']}: ${order['quantity']}'),
+                  trailing: Wrap(
+                    spacing: 10,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () => _selectService(service, 0),
                       ),
-                    );
-                  },
-                ),
-              ),
-            SizedBox(height: 24),
-            // Order Summary
-            Text('Đơn đặt của bạn', style: Theme.of(context).textTheme.titleLarge),
-            SizedBox(height: 8),
-            Expanded(
-              child: order.isEmpty
-                  ? Opacity(
-                      opacity: 0.5,
-                      child: Center(child: Text('Chưa có mục nào trong đơn.')),
-                    )
-                  : ListView.builder(
-                      itemCount: order.length,
-                      itemBuilder: (context, i) {
-                        final item = order[i];
-                        return Card(
-                          color: Color(0xFFF5F7FA),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          child: ListTile(
-                            leading: Icon(Icons.directions_car, color: Color(0xFF1976D2)),
-                            title: Text('${item['service']}, ${item['date'].day.toString().padLeft(2, '0')}/${item['date'].month.toString().padLeft(2, '0')}/${item['date'].year}, ${item['time'].format(context)}, ${item['detail']}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.grey),
-                                  onPressed: () => _editOrder(i),
-                                  tooltip: 'Sửa',
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => _deleteOrder(i),
-                                  tooltip: 'Xóa',
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-            if (showOrderError)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text('Đơn trống, vui lòng thêm mục.', style: TextStyle(color: Colors.red)),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: order.isNotEmpty ? _confirmOrder : null,
-                  child: Text('Xác nhận'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1976D2),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(120, 40),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          setState(() {
+                            currentOrders.remove(order);
+                          });
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            order['confirmed'] = true;
+                          });
+                        },
+                        child: const Text("Xác nhận"),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: order.isNotEmpty ? _clearOrder : null,
-                  child: Text('Hủy'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(100, 40),
-                  ),
-                ),
-              ],
-            ),
+              );
+            }).toList(),
           ],
         ),
       ),
-      floatingActionButton: QuickSupportButton(
-        onPressed: () => _showSupportDialog(context),
-      ),
     );
   }
-
-  void _showSupportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Hỗ trợ'),
-        content: Text('Chức năng hỗ trợ sẽ được cập nhật sau.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Đóng'),
-          ),
-        ],
-      ),
-    );
-  }
-} 
+}
