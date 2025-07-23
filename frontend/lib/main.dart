@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/activities_screen.dart';
 import 'screens/booking_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'data/user_db_helper.dart';
 
 void main() {
   runApp(ResortApp());
@@ -36,8 +39,42 @@ class ResortApp extends StatelessWidget {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
-      home: ResortMainShell(),
+      home: AppEntryPoint(),
     );
+  }
+}
+
+class AppEntryPoint extends StatefulWidget {
+  @override
+  State<AppEntryPoint> createState() => _AppEntryPointState();
+}
+
+class _AppEntryPointState extends State<AppEntryPoint> {
+  bool? _isLoggedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    UserDbHelper().insertDefaultTestUser(); // Insert test user for login
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    setState(() {
+      _isLoggedIn = isLoggedIn;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoggedIn == null) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return _isLoggedIn! ? ResortMainShell() : LoginScreen();
   }
 }
 
