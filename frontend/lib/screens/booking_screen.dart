@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'booking_history_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../data/room_data.dart';
+import '../data/room_booking_db_helper.dart';
+import '../models/room_booking.dart';
+import 'booking_history_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Function(int) onBackToHome;
@@ -44,7 +46,6 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _saveBooking() async {
-    final prefs = await SharedPreferences.getInstance();
     final newOrder = BookingOrder(
       id: _bookingId,
       roomName: _selectedRoom!.name,
@@ -54,11 +55,9 @@ class _BookingScreenState extends State<BookingScreen> {
       adults: _adults,
       children: _children,
       guestName: _guestName,
-      status: 'unpaid', // Ensure new bookings are always unpaid initially
+      status: 'unpaid',
     );
-    final history = prefs.getStringList('booking_history') ?? [];
-    history.add(json.encode(newOrder.toJson()));
-    await prefs.setStringList('booking_history', history);
+    await RoomBookingDbHelper().insertBooking(newOrder);
   }
 
   @override

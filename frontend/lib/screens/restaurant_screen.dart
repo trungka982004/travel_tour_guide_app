@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../data/restaurant_data.dart';
+import '../data/restaurant_order_db_helper.dart';
+import '../models/restaurant_order.dart';
 
 class RestaurantScreen extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   String selectedSort = 'Gần nhất';
   bool showMenuError = false;
   bool showOrderError = false;
-  List<Map<String, dynamic>> orderHistory = []; // Each item is a map: {'items': List, 'isPaid': bool}
+  List<RestaurantOrder> orderHistory = [];
   List<Map<String, dynamic>> currentOrder = [];
 
   List<String> sorts = ['Gần nhất', 'Phổ biến'];
@@ -51,30 +53,11 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   void _editOrder(int index) {
     final item = currentOrder[index];
     setState(() => currentOrder.removeAt(index));
-    _saveOrdersToPrefs();
   }
 
-  void _deleteOrder(int index) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Xóa mục này?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => currentOrder.removeAt(index));
-              _saveOrdersToPrefs();
-              Navigator.pop(context);
-            },
-            child: Text('Xóa'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _deleteOrder(String id) async {
+    await RestaurantOrderDbHelper().deleteOrder(id);
+    await _loadOrdersFromDb();
   }
 
   void _confirmOrder() {
@@ -128,7 +111,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
 
   void initState() {
     super.initState();
-    _loadOrdersFromPrefs();
+    _loadOrdersFromDb();
     _scrollController = ScrollController();
     _startAutoScroll();
   }
@@ -157,31 +140,29 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     super.dispose();
   }
 
-  Future<void> _loadOrdersFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final historyString = prefs.getString('orderHistory');
-    final currentString = prefs.getString('currentOrder');
-    if (historyString != null) {
-      final List<dynamic> decoded = jsonDecode(historyString);
-      // Be explicit with the type to avoid inference errors
-      orderHistory = decoded.map<Map<String, dynamic>>((orderData) {
-        return {
-          'items': List<Map<String, dynamic>>.from(orderData['items'].map((item) => Map<String, dynamic>.from(item))),
-          'isPaid': orderData['isPaid'] as bool,
-        };
-      }).toList();
-    }
-    if (currentString != null) {
-      final List<dynamic> decoded = jsonDecode(currentString);
-      currentOrder = decoded.map<Map<String, dynamic>>((item) => Map<String, dynamic>.from(item)).toList();
-    }
-    setState(() {});
+  Future<void> _loadOrdersFromDb() async {
+    final orders = await RestaurantOrderDbHelper().getAllOrders();
+    setState(() {
+      orderHistory = orders;
+    });
   }
 
-  Future<void> _saveOrdersToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('orderHistory', jsonEncode(orderHistory));
-    await prefs.setString('currentOrder', jsonEncode(currentOrder));
+  Future<void> _saveCurrentOrderToDb() async {
+    if (currentOrder.isNotEmpty) {
+      final order = RestaurantOrder(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        items: List<Map<String, dynamic>>.from(currentOrder),
+        isPaid: false,
+      );
+      await RestaurantOrderDbHelper().insertOrder(order);
+      currentOrder.clear();
+      await _loadOrdersFromDb();
+    }
+  }
+
+  Future<void> _updateOrderPaid(String id) async {
+    await RestaurantOrderDbHelper().updateOrderStatus(id, true);
+    await _loadOrdersFromDb();
   }
 
   @override
@@ -254,7 +235,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                         context,
                         MaterialPageRoute(builder: (context) => OrderHistoryScreen(
                           orderHistory: orderHistory,
-                          onUpdate: _saveOrdersToPrefs,
+                          onUpdate: _loadOrdersFromDb,
                         )),
                       );
                     },
@@ -299,15 +280,16 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                         onPressed: () {
                           setState(() {
                             if (currentOrder.isNotEmpty) {
-                              final newOrder = <String, dynamic>{
-                                'items': List<Map<String, dynamic>>.from(currentOrder),
-                                'isPaid': false,
-                              };
+                              final newOrder = RestaurantOrder(
+                                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                items: List<Map<String, dynamic>>.from(currentOrder),
+                                isPaid: false,
+                              );
                               orderHistory.add(newOrder);
                               currentOrder.clear();
                             }
                           });
-                          _saveOrdersToPrefs();
+                          _saveCurrentOrderToDb();
                         },
                         child: Text('Xác nhận'),
                         style: ElevatedButton.styleFrom(
@@ -457,7 +439,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             setState(() {
               currentOrder.add(orderItem);
             });
-            _saveOrdersToPrefs();
+            _saveCurrentOrderToDb();
           }),
           child: Text('Thêm'),
           style: ElevatedButton.styleFrom(
@@ -723,7 +705,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     
     final history = orderHistory.reversed.take(3 - result.length).toList().reversed.toList();
     
-    result.addAll(history.map((orderData) => List<Map<String, dynamic>>.from(orderData['items'])));
+    result.addAll(history.map((orderData) => List<Map<String, dynamic>>.from(orderData.items)));
     
     return result;
   }
@@ -798,10 +780,12 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               onPressed: () {
                 setState(() {
                   if (currentOrder.isNotEmpty) {
-                    orderHistory.add({
-                      'items': List<Map<String, dynamic>>.from(currentOrder),
-                      'isPaid': false,
-                    });
+                    final newOrder = RestaurantOrder(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      items: List<Map<String, dynamic>>.from(currentOrder),
+                      isPaid: false,
+                    );
+                    orderHistory.add(newOrder);
                     currentOrder.clear();
                   }
                 });
@@ -923,7 +907,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
 }
 
 class OrderHistoryScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> orderHistory;
+  final List<RestaurantOrder> orderHistory;
   final Function onUpdate;
 
   const OrderHistoryScreen({Key? key, required this.orderHistory, required this.onUpdate}) : super(key: key);
@@ -964,8 +948,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                   itemCount: widget.orderHistory.length,
                   itemBuilder: (context, i) {
                     final orderData = widget.orderHistory[i];
-                    final orderItems = List<Map<String, dynamic>>.from(orderData['items']);
-                    final isPaid = orderData['isPaid'] as bool;
+                    final orderItems = List<Map<String, dynamic>>.from(orderData.items);
+                    final isPaid = orderData.isPaid;
                     
                     int total = 0;
                     for (final item in orderItems) {
@@ -1033,7 +1017,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      widget.orderHistory[i]['isPaid'] = true;
+                                      widget.orderHistory[i].isPaid = true;
                                     });
                                     widget.onUpdate(); // This calls _saveOrdersToPrefs
                                   },

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../data/service_order_db_helper.dart';
+import '../models/service_order.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({Key? key}) : super(key: key);
@@ -73,74 +75,38 @@ class _ServicesScreenState extends State<ServicesScreen> {
     },
   ];
 
+  List<ServiceOrder> orderHistory = [];
   List<Map<String, dynamic>> currentOrder = [];
-  List<List<Map<String, dynamic>>> orderHistory = [];
 
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    _loadOrdersFromDb();
   }
 
-  Future<void> _loadOrders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final current = prefs.getString('currentOrder');
-    final history = prefs.getString('orderHistory');
+  Future<void> _loadOrdersFromDb() async {
+    final orders = await ServiceOrderDbHelper().getAllOrders();
     setState(() {
-      currentOrder = current != null
-          ? List<Map<String, dynamic>>.from(json.decode(current)).map((order) {
-              final service = availableServices.firstWhere(
-                (s) => s['name'] == order['serviceName'],
-                orElse: () => {},
-              );
-              if (service.isEmpty) return null;
-              return {
-                'service': service,
-                'option': order['option'],
-                'quantity': order['quantity'],
-              };
-            }).where((order) => order != null).cast<Map<String, dynamic>>().toList()
-          : [];
-      orderHistory = history != null
-          ? List<List<Map<String, dynamic>>>.from(
-              (json.decode(history) as List).map((orderList) {
-                return List<Map<String, dynamic>>.from(orderList).map((order) {
-                  final service = availableServices.firstWhere(
-                    (s) => s['name'] == order['serviceName'],
-                    orElse: () => {},
-                  );
-                  if (service.isEmpty) return null;
-                  return {
-                    'service': service,
-                    'option': order['option'],
-                    'quantity': order['quantity'],
-                  };
-                }).where((order) => order != null).cast<Map<String, dynamic>>().toList();
-              }),
-            )
-          : [];
+      orderHistory = orders;
     });
   }
 
-  Future<void> _saveOrders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentToSave = currentOrder
-        .map((order) => {
-              'serviceName': order['service']['name'],
-              'option': order['option'],
-              'quantity': order['quantity'],
-            })
-        .toList();
-    final historyToSave = orderHistory
-        .map((orderList) =>
-            orderList.map((order) => {
-                  'serviceName': order['service']['name'],
-                  'option': order['option'],
-                  'quantity': order['quantity'],
-                }).toList())
-        .toList();
-    await prefs.setString('currentOrder', json.encode(currentToSave));
-    await prefs.setString('orderHistory', json.encode(historyToSave));
+  Future<void> _saveCurrentOrderToDb() async {
+    if (currentOrder.isNotEmpty) {
+      final order = ServiceOrder(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        items: List<Map<String, dynamic>>.from(currentOrder),
+        date: DateTime.now().toIso8601String(),
+      );
+      await ServiceOrderDbHelper().insertOrder(order);
+      currentOrder.clear();
+      await _loadOrdersFromDb();
+    }
+  }
+
+  Future<void> _deleteOrder(String id) async {
+    await ServiceOrderDbHelper().deleteOrder(id);
+    await _loadOrdersFromDb();
   }
 
   void _selectService(Map<String, dynamic> service, int index, {Map<String, dynamic>? editingOrder}) {
@@ -226,7 +192,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   });
                 }
               });
-              _saveOrders();
+              _saveCurrentOrderToDb();
               Navigator.pop(context);
             },
             child: const Text("Xác nhận"),
@@ -240,7 +206,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     setState(() {
       currentOrder.remove(order);
     });
-    _saveOrders();
+    _saveCurrentOrderToDb();
   }
 
   void _editCurrentOrderItem(Map<String, dynamic> order) {
@@ -249,39 +215,34 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   void _confirmCurrentOrder() {
     if (currentOrder.isEmpty) return;
-    setState(() {
-      orderHistory.insert(0, List<Map<String, dynamic>>.from(currentOrder));
-      currentOrder.clear();
-    });
-    _saveOrders();
+    _saveCurrentOrderToDb();
   }
 
-  void _deleteHistoryOrder(int index) {
-    setState(() {
-      orderHistory.removeAt(index);
-    });
-    _saveOrders();
+  void _deleteHistoryOrder(String id) {
+    _deleteOrder(id);
   }
 
-  void _editOrderDialog(int orderIndex) {
-    final List<Map<String, dynamic>> orderList = List<Map<String, dynamic>>.from(orderHistory[orderIndex].map((e) => Map<String, dynamic>.from(e)));
+  void _editOrderDialog(String id) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Chỉnh sửa đơn #${orderHistory.length - orderIndex}'),
+          title: Text('Chỉnh sửa đơn #$id'),
           content: SizedBox(
             width: 350,
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: orderList.length,
+              itemCount: orderHistory.length,
               itemBuilder: (context, idx) {
-                final order = orderList[idx];
-                final service = order['service'];
+                final order = orderHistory[idx];
+                final service = order.items.firstWhere(
+                  (item) => item['service']['name'] == order.items[idx]['service']['name'],
+                  orElse: () => {},
+                )['service'];
                 return ListTile(
                   leading: Icon(service['icon'], color: Colors.deepOrange),
                   title: Text(service['name']),
-                  subtitle: Text('${order['option']} - ${service['unitLabel']}: ${order['quantity']}'),
+                  subtitle: Text('${order.items[idx]['option']} - ${service['unitLabel']}: ${order.items[idx]['quantity']}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -289,8 +250,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         onPressed: () async {
                           // Edit this service in the order
-                          String? selectedOption = order['option'];
-                          int quantity = order['quantity'];
+                          String? selectedOption = order.items[idx]['option'];
+                          int quantity = order.items[idx]['quantity'];
                           await showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -358,8 +319,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    order['option'] = selectedOption;
-                                    order['quantity'] = quantity;
+                                    order.items[idx]['option'] = selectedOption;
+                                    order.items[idx]['quantity'] = quantity;
                                     Navigator.pop(context);
                                   },
                                   child: const Text("Xác nhận"),
@@ -368,9 +329,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             ),
                           );
                           setState(() {
-                            orderHistory[orderIndex][idx] = order;
+                            orderHistory[idx] = order;
                           });
-                          _saveOrders();
+                          _saveCurrentOrderToDb();
                         },
                       ),
                     ],
@@ -457,29 +418,29 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                               controller: scrollController,
                                               itemCount: orderHistory.length,
                                               itemBuilder: (context, index) {
-                                                final orderList = orderHistory[index];
+                                                final order = orderHistory[index];
                                                 return Card(
                                                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                                   child: ExpansionTile(
                                                     title: Row(
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Text('Đơn #${orderHistory.length - index} (${orderList.length} dịch vụ)'),
+                                                        Text('Đơn #${orderHistory.length - index} (${order.items.length} dịch vụ)'),
                                                         IconButton(
                                                           icon: const Icon(Icons.delete, color: Colors.red),
                                                           onPressed: () {
                                                             Navigator.pop(context);
-                                                            _deleteHistoryOrder(index);
+                                                            _deleteHistoryOrder(order.id);
                                                           },
                                                         ),
                                                       ],
                                                     ),
-                                                    children: orderList.map((order) {
-                                                      final service = order['service'];
+                                                    children: order.items.map((item) {
+                                                      final service = item['service'];
                                                       return ListTile(
                                                         leading: Icon(service['icon'], color: Colors.green),
                                                         title: Text(service['name']),
-                                                        subtitle: Text('${order['option']} - ${service['unitLabel']}: ${order['quantity']}'),
+                                                        subtitle: Text('${item['option']} - ${service['unitLabel']}: ${item['quantity']}'),
                                                       );
                                                     }).toList(),
                                                   ),
@@ -554,22 +515,22 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       itemCount: orderHistory.length < 3 ? orderHistory.length : 3,
                       itemBuilder: (context, i) {
                         final index = i;
-                        final orderList = orderHistory[index];
+                        final order = orderHistory[index];
                         return Card(
                           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           child: ExpansionTile(
-                            title: Text('Đơn #${orderHistory.length - index} (${orderList.length} dịch vụ)'),
-                            children: orderList.map((order) {
-                              final service = order['service'];
+                            title: Text('Đơn #${orderHistory.length - index} (${order.items.length} dịch vụ)'),
+                            children: order.items.map((item) {
+                              final service = item['service'];
                               return ListTile(
                                 leading: Icon(service['icon'], color: Colors.green),
                                 title: Text(service['name']),
-                                subtitle: Text('${order['option']} - ${service['unitLabel']}: ${order['quantity']}'),
+                                subtitle: Text('${item['option']} - ${service['unitLabel']}: ${item['quantity']}'),
                               );
                             }).toList(),
                             trailing: IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => _editOrderDialog(index),
+                              onPressed: () => _editOrderDialog(order.id),
                             ),
                           ),
                         );

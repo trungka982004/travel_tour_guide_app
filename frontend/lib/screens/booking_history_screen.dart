@@ -1,57 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
-// Data model for a booking order
-class BookingOrder {
-  final String id;
-  final String roomName;
-  final String roomImageAsset;
-  final DateTime checkIn;
-  final DateTime checkOut;
-  final int adults;
-  final int children;
-  final String guestName;
-  String status; // 'unpaid' or 'paid'
-
-  BookingOrder({
-    required this.id,
-    required this.roomName,
-    required this.roomImageAsset,
-    required this.checkIn,
-    required this.checkOut,
-    required this.adults,
-    required this.children,
-    required this.guestName,
-    this.status = 'unpaid',
-  });
-
-  // Serialization to JSON
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'roomName': roomName,
-        'roomImageAsset': roomImageAsset,
-        'checkIn': checkIn.toIso8601String(),
-        'checkOut': checkOut.toIso8601String(),
-        'adults': adults,
-        'children': children,
-        'guestName': guestName,
-        'status': status,
-      };
-
-  // Deserialization from JSON
-  factory BookingOrder.fromJson(Map<String, dynamic> json) => BookingOrder(
-        id: json['id'],
-        roomName: json['roomName'],
-        roomImageAsset: json['roomImageAsset'],
-        checkIn: DateTime.parse(json['checkIn']),
-        checkOut: DateTime.parse(json['checkOut']),
-        adults: json['adults'],
-        children: json['children'],
-        guestName: json['guestName'],
-        status: json['status'] ?? 'unpaid',
-      );
-}
+import '../data/room_booking_db_helper.dart';
+import '../models/room_booking.dart';
 
 class BookingHistoryScreen extends StatefulWidget {
   @override
@@ -68,36 +17,24 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
   }
 
   Future<void> _loadBookingHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final history = prefs.getStringList('booking_history') ?? [];
+    final bookings = await RoomBookingDbHelper().getAllBookings();
     setState(() {
-      _bookingHistory = history
-          .map((orderJson) => BookingOrder.fromJson(json.decode(orderJson)))
-          .toList();
+      _bookingHistory = bookings;
     });
   }
 
   Future<void> _saveHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    final history = _bookingHistory
-        .map((order) => json.encode(order.toJson()))
-        .toList();
-    await prefs.setStringList('booking_history', history);
+    // No-op: all changes are persisted immediately in the DB
   }
 
-  void _confirmPayment(String orderId) {
-    setState(() {
-      final order = _bookingHistory.firstWhere((o) => o.id == orderId);
-      order.status = 'paid';
-    });
-    _saveHistory();
+  void _confirmPayment(String orderId) async {
+    await RoomBookingDbHelper().updateBookingStatus(orderId, 'paid');
+    await _loadBookingHistory();
   }
 
-  void _deleteOrder(String orderId) {
-    setState(() {
-      _bookingHistory.removeWhere((o) => o.id == orderId);
-    });
-    _saveHistory();
+  void _deleteOrder(String orderId) async {
+    await RoomBookingDbHelper().deleteBooking(orderId);
+    await _loadBookingHistory();
   }
 
   @override
