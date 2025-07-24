@@ -20,7 +20,7 @@ class UserDbHelper {
     final path = join(dbPath, 'user.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE users (
@@ -30,21 +30,35 @@ class UserDbHelper {
             phone TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            dateOfBirth TEXT NOT NULL
+            dateOfBirth TEXT NOT NULL,
+            avatarPath TEXT
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE users ADD COLUMN avatarPath TEXT');
+        }
       },
     );
   }
 
   Future<int> insertUser(User user) async {
     final dbClient = await db;
-    return await dbClient.insert('users', user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'users',
+      user.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<User?> getUserByEmail(String email) async {
     final dbClient = await db;
-    final maps = await dbClient.query('users', where: 'email = ?', whereArgs: [email]);
+    final maps = await dbClient.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email],
+    );
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);
     }
@@ -53,7 +67,11 @@ class UserDbHelper {
 
   Future<User?> getUserByUsername(String username) async {
     final dbClient = await db;
-    final maps = await dbClient.query('users', where: 'username = ?', whereArgs: [username]);
+    final maps = await dbClient.query(
+      'users',
+      where: 'username = ?',
+      whereArgs: [username],
+    );
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);
     }
@@ -62,12 +80,21 @@ class UserDbHelper {
 
   Future<int> updateUser(User user) async {
     final dbClient = await db;
-    return await dbClient.update('users', user.toMap(), where: 'id = ?', whereArgs: [user.id]);
+    return await dbClient.update(
+      'users',
+      user.toMap(),
+      where: 'id = ?',
+      whereArgs: [user.id],
+    );
   }
 
   Future<User?> authenticate(String email, String password) async {
     final dbClient = await db;
-    final maps = await dbClient.query('users', where: 'email = ? AND password = ?', whereArgs: [email, password]);
+    final maps = await dbClient.query(
+      'users',
+      where: 'email = ? AND password = ?',
+      whereArgs: [email, password],
+    );
     if (maps.isNotEmpty) {
       return User.fromMap(maps.first);
     }
@@ -77,7 +104,11 @@ class UserDbHelper {
   Future<void> insertDefaultTestUser() async {
     final dbClient = await db;
     // Check if test user exists
-    final maps = await dbClient.query('users', where: 'email = ?', whereArgs: ['test@example.com']);
+    final maps = await dbClient.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: ['test@example.com'],
+    );
     if (maps.isEmpty) {
       final testUser = User(
         fullName: 'Test User',
@@ -90,4 +121,4 @@ class UserDbHelper {
       await dbClient.insert('users', testUser.toMap());
     }
   }
-} 
+}

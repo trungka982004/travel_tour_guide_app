@@ -120,9 +120,13 @@ class _ResortMainShellState extends State<ResortMainShell> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+          ),
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -2))],
         ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -130,8 +134,8 @@ class _ResortMainShellState extends State<ResortMainShell> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Color(0xFF1976D2),
-          unselectedItemColor: Colors.grey,
+          selectedItemColor: Color(0xFF01579B),
+          unselectedItemColor: Color(0xFF455A64),
           showUnselectedLabels: true,
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),

@@ -6,6 +6,7 @@ class User {
   String email;
   String password;
   String dateOfBirth;
+  String? avatarPath;
 
   User({
     this.id,
@@ -15,6 +16,7 @@ class User {
     required this.email,
     required this.password,
     required this.dateOfBirth,
+    this.avatarPath,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class User {
       'email': email,
       'password': password,
       'dateOfBirth': dateOfBirth,
+      'avatarPath': avatarPath,
     };
     if (id != null) map['id'] = id;
     return map;
@@ -39,6 +42,7 @@ class User {
       email: map['email'],
       password: map['password'],
       dateOfBirth: map['dateOfBirth'],
+      avatarPath: map['avatarPath'],
     );
   }
-} 
+}
