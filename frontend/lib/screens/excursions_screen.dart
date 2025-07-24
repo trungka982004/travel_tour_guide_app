@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../widgets/quick_support_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../data/excursion_db_helper.dart';
+import '../models/excursion_booking.dart';
+import '../data/user_db_helper.dart';
+import '../models/user.dart';
 
 class ExcursionsScreen extends StatefulWidget {
   @override
@@ -11,6 +14,7 @@ class ExcursionsScreen extends StatefulWidget {
 class _ExcursionsScreenState extends State<ExcursionsScreen> {
   final List<Map<String, dynamic>> excursions = [
     {
+      'id': 0,
       'title': 'Chùa Hòn Một',
       'desc': 'Khám phá vẻ đẹp hoang sơ của đảo Hòn Một và ngôi chùa.',
       'image': 'assets/excursions/hon-mot.png',
@@ -19,6 +23,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'rating': 5,
     },
     {
+      'id': 1,
       'title': 'Khu bảo tồn thiên nhiên Bình Châu – Phước Bửu',
       'desc': 'Dạo bước giữa thiên nhiên đa dạng tại khu bảo tồn.',
       'image': 'assets/excursions/phuc-buu.png',
@@ -27,6 +32,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'rating': 4,
     },
     {
+      'id': 2,
       'title': 'Suối nước nóng Bình Châu',
       'desc': 'Thư giãn tại suối nước nóng và tắm bùn khoáng.',
       'image': 'assets/excursions/binh-chau.png',
@@ -35,6 +41,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'rating': 5,
     },
     {
+      'id': 3,
       'title': 'Núi Minh Đạm',
       'desc': 'Leo núi, khám phá hang động và rừng xanh.',
       'image': 'assets/excursions/minh-dam.png',
@@ -43,6 +50,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'rating': 4,
     },
     {
+      'id': 4,
       'title': 'Chùa Trúc Lâm Chân Nguyên',
       'desc': 'Gặp gỡ khỉ hoang dã và tận hưởng cảnh núi rừng.',
       'image': 'assets/excursions/monkey-moutaint.png',
@@ -51,6 +59,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'rating': 5,
     },
     {
+      'id': 5,
       'title': 'Thành phố Vũng Tàu',
       'desc': 'Trải nghiệm thành phố biển sôi động và các bãi tắm nổi tiếng.',
       'image': 'assets/excursions/vung-tau-city.jpg',
@@ -60,34 +69,39 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     },
   ];
 
-  List<Map<String, dynamic>> bookings = [];
+  List<ExcursionBooking> bookings = [];
+  String currentUserEmail = '';
+  bool showHistory = false; // This can be removed if not used elsewhere
 
   @override
   void initState() {
     super.initState();
-    _loadBookings();
+    _loadUserAndBookings();
   }
 
-  Future<void> _loadBookings() async {
+  Future<void> _loadUserAndBookings() async {
     final prefs = await SharedPreferences.getInstance();
-    final bookingsString = prefs.getString('excursion_bookings');
-    if (bookingsString != null) {
-      final List decoded = jsonDecode(bookingsString);
+    final email = prefs.getString('userEmail');
+    if (email != null) {
       setState(() {
-        bookings = decoded.map((e) {
-          final map = Map<String, dynamic>.from(e);
-          if (map['services'] is List) {
-            map['services'] = List<String>.from(map['services']);
-          }
-          return map;
-        }).toList();
+        currentUserEmail = email;
       });
+      final user = await UserDbHelper().getUserByEmail(email);
+      if (user != null) {
+        setState(() {
+          // userFullName = user.fullName; // This line is removed
+        });
+      }
+      await _loadBookings();
     }
   }
 
-  Future<void> _saveBookings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('excursion_bookings', jsonEncode(bookings));
+  Future<void> _loadBookings() async {
+    final dbHelper = ExcursionDbHelper();
+    final bookingMaps = await dbHelper.getBookingsByUser(currentUserEmail);
+    setState(() {
+      bookings = bookingMaps.map((map) => ExcursionBooking.fromMap(map)).toList();
+    });
   }
 
   @override
@@ -119,30 +133,6 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Gradient Header
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF0288D1), Color(0xFF80DEEA)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Outdoor Adventures', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 8),
-                    Text('Discover the best excursions around Carmelina Resort!', style: TextStyle(color: Colors.white70, fontSize: 15)),
-                  ],
-                ),
-              ),
               if (bookings.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
@@ -150,19 +140,33 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    children: bookings.map((b) => Card(
-                      color: Color(0xFFD1E8F1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      margin: EdgeInsets.only(bottom: 10),
-                      child: ListTile(
-                        leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
-                        title: Text(b['title'] ?? '', style: TextStyle(color: Color(0xFF01579B))),
-                        subtitle: Text('Ngày: ${b['date'] != null ? DateTime.parse(b['date'] as String).day.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).month.toString().padLeft(2, '0') + '/' + DateTime.parse(b['date'] as String).year.toString() : ''}\nKhách: ${b['guests']}\nDịch vụ: ${(b['services'] as List<String>).join(', ')}'),
+                  child: Card(
+                    color: Color(0xFFD1E8F1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: EdgeInsets.only(bottom: 10),
+                    child: ListTile(
+                      leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
+                      title: Text(_getExcursionTitleById(bookings.last.excursionId), style: TextStyle(color: Color(0xFF01579B))),
+                      subtitle: Text(
+                        'Tên: ${bookings.last.userName}\nEmail: ${bookings.last.userEmail}\nNgày: ${bookings.last.bookingDate.isNotEmpty ? _formatDate(bookings.last.bookingDate) : ''}\nKhách: ${bookings.last.numberOfPeople}\nDịch vụ: ${bookings.last.status}'
                       ),
-                    )).toList(),
+                    ),
                   ),
                 ),
+                if (bookings.length > 1) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+                    child: GestureDetector(
+                      onTap: () => _showHistoryDialog(context),
+                      child: Row(
+                        children: [
+                          Text('Lịch sử đơn', style: TextStyle(color: Color(0xFF01579B), fontSize: 16, fontWeight: FontWeight.bold)),
+                          Icon(Icons.history, color: Color(0xFF01579B)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
               SizedBox(height: 24),
               // Top Recommendation (Horizontal Scroll)
@@ -202,9 +206,6 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: QuickSupportButton(
-        onPressed: () => _showSupportDialog(context),
       ),
     );
   }
@@ -359,6 +360,17 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     );
   }
 
+  String _getExcursionTitleById(int id) {
+    final found = excursions.firstWhere((e) => e['id'] == id, orElse: () => {});
+    return found['title'] ?? '';
+  }
+
+  String _formatDate(String isoDate) {
+    final date = DateTime.tryParse(isoDate);
+    if (date == null) return '';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
   void _showBookingSheet(BuildContext context, Map<String, dynamic> excursion) {
     DateTime? selectedDate;
     int guests = 1;
@@ -399,7 +411,11 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                     children: [
                       Icon(Icons.date_range, color: Color(0xFF80DEEA)),
                       SizedBox(width: 8),
-                      Text(selectedDate == null ? 'Chọn ngày bắt đầu' : 'Ngày: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'),
+                      Text(
+                        selectedDate == null
+                          ? 'Chọn ngày bắt đầu'
+                          : 'Ngày: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                      ),
                       SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: () async {
@@ -431,7 +447,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                         icon: Icon(Icons.remove),
                         onPressed: guests > 1 ? () => setStateSheet(() => guests--) : null,
                       ),
-                      Text('$guests', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('	$guests', style: TextStyle(fontWeight: FontWeight.bold)),
                       IconButton(
                         icon: Icon(Icons.add),
                         onPressed: () => setStateSheet(() => guests++),
@@ -462,16 +478,26 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                     children: [
                       ElevatedButton(
                         onPressed: selectedDate == null ? null : () async {
-                          final booking = {
-                            'title': excursion['title'],
-                            'date': selectedDate!.toIso8601String(),
-                            'guests': guests,
-                            'services': List<String>.from(extraServices),
-                          };
-                          setState(() {
-                            bookings.add(booking);
-                          });
-                          await _saveBookings();
+                          final dbHelper = ExcursionDbHelper();
+                          final excursionId = excursion['id'];
+                          // Fetch user name from user db
+                          final prefs = await SharedPreferences.getInstance();
+                          final email = prefs.getString('userEmail');
+                          String userName = '';
+                          if (email != null) {
+                            final user = await UserDbHelper().getUserByEmail(email);
+                            if (user != null) userName = user.fullName;
+                          }
+                          await dbHelper.bookExcursion(
+                            excursionId: excursionId,
+                            userEmail: currentUserEmail,
+                            userName: userName,
+                            bookingTime: DateTime.now().toIso8601String(),
+                            bookingDate: selectedDate!.toIso8601String(),
+                            numberOfPeople: guests,
+                            status: extraServices.join(', '),
+                          );
+                          await _loadBookings();
                           Navigator.pop(context);
                           showDialog(
                             context: context,
@@ -505,12 +531,59 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     );
   }
 
-  void _showSupportDialog(BuildContext context) {
+  void _showSupportDialogForBooking(BuildContext context, ExcursionBooking booking) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Hỗ trợ'),
-        content: Text('Chức năng hỗ trợ sẽ được cập nhật sau.'),
+        title: Text('Hỗ trợ đặt tour'),
+        content: Text(
+          'Bạn cần hỗ trợ cho tour:\n'
+          'Tên tour: ${_getExcursionTitleById(booking.excursionId)}\n'
+          'Ngày: ${_formatDate(booking.bookingDate)}\n'
+          'Khách: ${booking.numberOfPeople}\n'
+          'Dịch vụ: ${booking.status}\n\n'
+          'Bộ phận hỗ trợ sẽ liên hệ với bạn sớm nhất.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Đóng'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHistoryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Lịch sử đơn'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: bookings.map((b) => Card(
+                color: Color(0xFFD1E8F1),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
+                  title: Text(_getExcursionTitleById(b.excursionId), style: TextStyle(color: Color(0xFF01579B))),
+                  subtitle: Text(
+                    'Tên: ${b.userName}\nEmail: ${b.userEmail}\nNgày: ${b.bookingDate.isNotEmpty ? _formatDate(b.bookingDate) : ''}\nKhách: ${b.numberOfPeople}\nDịch vụ: ${b.status}'
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.support_agent, color: Color(0xFF0288D1)),
+                    tooltip: 'Yêu cầu hỗ trợ',
+                    onPressed: () => _showSupportDialogForBooking(context, b),
+                  ),
+                ),
+              )).toList(),
+            ),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
