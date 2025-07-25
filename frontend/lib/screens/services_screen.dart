@@ -15,61 +15,61 @@ class _ServicesScreenState extends State<ServicesScreen> {
   List<Map<String, dynamic>> availableServices = [
     {
       'name': 'Đưa đón sân bay',
-      'icon': Icons.airport_shuttle,
+      'icon': 'airport_shuttle',
       'options': ['4 chỗ', '7 chỗ', '16 chỗ'],
       'unitLabel': 'chỗ',
     },
     {
       'name': 'Đồ bơi',
-      'icon': Icons.pool,
+      'icon': 'pool',
       'options': ['S', 'M', 'L', 'XL'],
       'unitLabel': 'bộ',
     },
     {
       'name': 'Vật dụng chuyên dụng',
-      'icon': Icons.construction,
+      'icon': 'construction',
       'options': ['Lều', 'Vợt cầu lông', 'Ghế xếp'],
       'unitLabel': 'món',
     },
     {
       'name': 'Xe lăn',
-      'icon': Icons.accessible,
+      'icon': 'accessible',
       'options': ['Có người đẩy', 'Tự điều khiển'],
       'unitLabel': 'xe',
     },
     {
       'name': 'Dụng cụ tập gym',
-      'icon': Icons.fitness_center,
+      'icon': 'fitness_center',
       'options': ['Tạ đơn', 'Dây kháng lực'],
       'unitLabel': 'món',
     },
     {
       'name': 'Thuyền kayak',
-      'icon': Icons.sailing,
+      'icon': 'sailing',
       'options': ['1 người', '2 người'],
       'unitLabel': 'thuyền',
     },
     {
       'name': 'Áo choàng tắm',
-      'icon': Icons.checkroom,
+      'icon': 'checkroom',
       'options': ['S', 'M', 'L'],
       'unitLabel': 'áo',
     },
     {
       'name': 'Đèn pin ban đêm',
-      'icon': Icons.flashlight_on,
+      'icon': 'flashlight_on',
       'options': ['Loại nhỏ', 'Loại lớn'],
       'unitLabel': 'cái',
     },
     {
       'name': 'Ô dù che nắng',
-      'icon': Icons.umbrella,
+      'icon': 'umbrella',
       'options': ['Nhỏ', 'Trung bình', 'Lớn'],
       'unitLabel': 'cái',
     },
     {
       'name': 'Ván trượt nước',
-      'icon': Icons.surfing,
+      'icon': 'surfing',
       'options': ['Beginner', 'Pro'],
       'unitLabel': 'ván',
     },
@@ -88,8 +88,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
     final orders = await ServiceOrderDbHelper().getAllOrders();
     setState(() {
       orderHistory = orders;
-      print('DEBUG: Loaded orderHistory:');
-      print(orderHistory);
     });
   }
 
@@ -104,11 +102,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
       currentOrder.clear();
       await _loadOrdersFromDb();
     }
-  }
-
-  Future<void> _deleteOrder(String id) async {
-    await ServiceOrderDbHelper().deleteOrder(id);
-    await _loadOrdersFromDb();
   }
 
   void _selectService(
@@ -216,12 +209,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   editingOrder['quantity'] = quantity;
                 } else {
                   currentOrder.add({
-                    'service': service,
+                    'serviceName': service['name'],
+                    'icon': service['icon'],
+                    'options': service['options'],
+                    'unitLabel': service['unitLabel'],
                     'option': selectedOption,
                     'quantity': quantity,
                   });
-                  print('DEBUG: Added to currentOrder:');
-                  print(currentOrder);
                 }
               });
               Navigator.pop(context);
@@ -236,250 +230,74 @@ class _ServicesScreenState extends State<ServicesScreen> {
   void _deleteCurrentOrderItem(Map<String, dynamic> order) {
     setState(() {
       currentOrder.remove(order);
-      print('DEBUG: Deleted from currentOrder:');
-      print(currentOrder);
     });
   }
 
   void _editCurrentOrderItem(Map<String, dynamic> order) {
-    _selectService(order['service'], 0, editingOrder: order);
+    _selectService(
+      {
+        'name': order['serviceName'],
+        'icon': order['icon'],
+        'options': order['options'],
+        'unitLabel': order['unitLabel'],
+      },
+      0,
+      editingOrder: order,
+    );
   }
 
   void _confirmCurrentOrder() async {
-    print('DEBUG: Confirming order. CurrentOrder before save:');
-    print(currentOrder);
     await _saveCurrentOrderToDb();
     setState(() {
       currentOrder.clear();
-      print('DEBUG: Cleared currentOrder after confirm.');
     });
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Đơn hàng đã được xác nhận!')));
   }
 
-  void _deleteHistoryOrder(String id) {
-    _deleteOrder(id);
+  void _deleteHistoryOrder(String id) async {
+    await ServiceOrderDbHelper().deleteOrder(id);
+    await _loadOrdersFromDb();
   }
 
-  void _editOrderDialog(String id) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          title: Text(
-            'Chỉnh sửa đơn #$id',
-            style: TextStyle(color: Color(0xFF01579B)),
-          ),
-          content: Container(
-            width: 350,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-              ),
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: orderHistory.length,
-              itemBuilder: (context, idx) {
-                final order = orderHistory[idx];
-                final service = order.items.firstWhere(
-                  (item) =>
-                      item['service']['name'] ==
-                      order.items[idx]['service']['name'],
-                  orElse: () => {},
-                )['service'];
-                return ListTile(
-                  leading: Icon(service['icon'], color: Color(0xFF01579B)),
-                  title: Text(
-                    service['name'],
-                    style: TextStyle(color: Color(0xFF01579B)),
-                  ),
-                  subtitle: Text(
-                    '${order.items[idx]['option']} - ${service['unitLabel']}: ${order.items[idx]['quantity']}',
-                    style: TextStyle(color: Color(0xFF455A64)),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Color(0xFF80DEEA)),
-                        onPressed: () async {
-                          String? selectedOption = order.items[idx]['option'];
-                          int quantity = order.items[idx]['quantity'];
-                          await showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              title: Text(
-                                'Chỉnh sửa ${service['name']}',
-                                style: TextStyle(color: Color(0xFF01579B)),
-                              ),
-                              content: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color(0xFFE0F7FA),
-                                      Color(0xFFB2EBF2),
-                                    ],
-                                  ),
-                                ),
-                                child: StatefulBuilder(
-                                  builder: (context, setStateDialog) {
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        DropdownButton<String>(
-                                          value: selectedOption,
-                                          isExpanded: true,
-                                          style: TextStyle(
-                                            color: Color(0xFF01579B),
-                                          ),
-                                          dropdownColor: Color(0xFFD1E8F1),
-                                          onChanged: (value) {
-                                            setStateDialog(() {
-                                              selectedOption = value;
-                                            });
-                                          },
-                                          items:
-                                              (service['options']
-                                                      as List<String>)
-                                                  .map<
-                                                    DropdownMenuItem<String>
-                                                  >(
-                                                    (option) =>
-                                                        DropdownMenuItem<
-                                                          String
-                                                        >(
-                                                          value: option,
-                                                          child: Text(
-                                                            option,
-                                                            style: TextStyle(
-                                                              color: Color(
-                                                                0xFF01579B,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                  )
-                                                  .toList(),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "Số lượng:",
-                                              style: TextStyle(
-                                                color: Color(0xFF01579B),
-                                              ),
-                                            ),
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.remove,
-                                                    color: Color(0xFF01579B),
-                                                  ),
-                                                  onPressed: quantity > 1
-                                                      ? () => setStateDialog(
-                                                          () => quantity--,
-                                                        )
-                                                      : null,
-                                                ),
-                                                Text(
-                                                  quantity.toString(),
-                                                  style: TextStyle(
-                                                    color: Color(0xFF01579B),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.add,
-                                                    color: Color(0xFF01579B),
-                                                  ),
-                                                  onPressed: () =>
-                                                      setStateDialog(
-                                                        () => quantity++,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(
-                                    "Hủy",
-                                    style: TextStyle(color: Color(0xFF01579B)),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFF80DEEA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    order.items[idx]['option'] = selectedOption;
-                                    order.items[idx]['quantity'] = quantity;
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "Xác nhận",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                          setState(() {
-                            orderHistory[idx] = order;
-                          });
-                          _saveCurrentOrderToDb();
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Đóng', style: TextStyle(color: Color(0xFF01579B))),
-            ),
-          ],
-        );
-      },
-    );
+  IconData _iconFromString(String iconName) {
+    switch (iconName) {
+      case 'airport_shuttle':
+        return Icons.airport_shuttle;
+      case 'pool':
+        return Icons.pool;
+      case 'construction':
+        return Icons.construction;
+      case 'accessible':
+        return Icons.accessible;
+      case 'fitness_center':
+        return Icons.fitness_center;
+      case 'sailing':
+        return Icons.sailing;
+      case 'checkroom':
+        return Icons.checkroom;
+      case 'flashlight_on':
+        return Icons.flashlight_on;
+      case 'umbrella':
+        return Icons.umbrella;
+      case 'surfing':
+        return Icons.surfing;
+      default:
+        return Icons.help_outline;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dịch vụ Resort', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Dịch vụ Resort',
+          style: TextStyle(color: Colors.white),
+        ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -489,7 +307,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -517,7 +335,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 var service = availableServices[index];
                 return ElevatedButton.icon(
                   onPressed: () => _selectService(service, index),
-                  icon: Icon(service['icon'], color: Color(0xFF01579B)),
+                  icon: Icon(
+                    _iconFromString(service['icon']),
+                    color: Color(0xFF01579B),
+                  ),
                   label: Text(
                     service['name'],
                     style: TextStyle(color: Color(0xFF01579B)),
@@ -542,7 +363,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     children: [
                       Text(
                         'Tổng đơn hàng: ${orderHistory.length}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF01579B),
@@ -554,7 +375,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
-                            shape: RoundedRectangleBorder(
+                            shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(24),
                               ),
@@ -564,7 +385,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 expand: false,
                                 builder: (context, scrollController) {
                                   return Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       gradient: LinearGradient(
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
@@ -599,7 +420,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                                     final order =
                                                         orderHistory[index];
                                                     return Card(
-                                                      color: Color(0xFFD1E8F1),
+                                                      color: const Color(
+                                                        0xFFD1E8F1,
+                                                      ),
                                                       margin:
                                                           const EdgeInsets.symmetric(
                                                             horizontal: 12,
@@ -613,14 +436,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                                           children: [
                                                             Text(
                                                               'Đơn #${orderHistory.length - index} (${order.items.length} dịch vụ)',
-                                                              style: TextStyle(
-                                                                color: Color(
-                                                                  0xFF01579B,
-                                                                ),
-                                                              ),
+                                                              style:
+                                                                  const TextStyle(
+                                                                    color: Color(
+                                                                      0xFF01579B,
+                                                                    ),
+                                                                  ),
                                                             ),
                                                             IconButton(
-                                                              icon: Icon(
+                                                              icon: const Icon(
                                                                 Icons.delete,
                                                                 color: Color(
                                                                   0xFFFF5722,
@@ -640,30 +464,265 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                                         children: order.items.map((
                                                           item,
                                                         ) {
-                                                          final service =
-                                                              item['service'];
                                                           return ListTile(
                                                             leading: Icon(
-                                                              service['icon'],
-                                                              color: Color(
-                                                                0xFF01579B,
+                                                              _iconFromString(
+                                                                item['icon'] ??
+                                                                    '',
                                                               ),
+                                                              color:
+                                                                  const Color(
+                                                                    0xFF01579B,
+                                                                  ),
                                                             ),
                                                             title: Text(
-                                                              service['name'],
-                                                              style: TextStyle(
-                                                                color: Color(
-                                                                  0xFF01579B,
-                                                                ),
-                                                              ),
+                                                              item['serviceName'] ??
+                                                                  '',
+                                                              style:
+                                                                  const TextStyle(
+                                                                    color: Color(
+                                                                      0xFF01579B,
+                                                                    ),
+                                                                  ),
                                                             ),
                                                             subtitle: Text(
-                                                              '${item['option']} - ${service['unitLabel']}: ${item['quantity']}',
-                                                              style: TextStyle(
+                                                              '${item['option'] ?? ''} - ${item['unitLabel'] ?? ''}: ${item['quantity'] ?? ''}',
+                                                              style:
+                                                                  const TextStyle(
+                                                                    color: Color(
+                                                                      0xFF455A64,
+                                                                    ),
+                                                                  ),
+                                                            ),
+                                                            trailing: IconButton(
+                                                              icon: const Icon(
+                                                                Icons.edit,
                                                                 color: Color(
-                                                                  0xFF455A64,
+                                                                  0xFF80DEEA,
                                                                 ),
                                                               ),
+                                                              onPressed: () {
+                                                                String?
+                                                                selectedOption =
+                                                                    item['option'] ??
+                                                                    (item['options'] !=
+                                                                                null &&
+                                                                            (item['options']
+                                                                                    as List)
+                                                                                .isNotEmpty
+                                                                        ? item['options'][0]
+                                                                        : null);
+                                                                int quantity =
+                                                                    item['quantity'] ??
+                                                                    1;
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder: (context) => AlertDialog(
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            24,
+                                                                          ),
+                                                                    ),
+                                                                    title: Text(
+                                                                      'Chỉnh sửa ${item['serviceName'] ?? ''}',
+                                                                      style: const TextStyle(
+                                                                        color: Color(
+                                                                          0xFF01579B,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    content: Container(
+                                                                      decoration: const BoxDecoration(
+                                                                        gradient: LinearGradient(
+                                                                          begin:
+                                                                              Alignment.topCenter,
+                                                                          end: Alignment
+                                                                              .bottomCenter,
+                                                                          colors: [
+                                                                            Color(
+                                                                              0xFFE0F7FA,
+                                                                            ),
+                                                                            Color(
+                                                                              0xFFB2EBF2,
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      child: StatefulBuilder(
+                                                                        builder:
+                                                                            (
+                                                                              context,
+                                                                              setStateDialog,
+                                                                            ) {
+                                                                              return Column(
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  DropdownButton<
+                                                                                    String
+                                                                                  >(
+                                                                                    value: selectedOption,
+                                                                                    isExpanded: true,
+                                                                                    style: const TextStyle(
+                                                                                      color: Color(
+                                                                                        0xFF01579B,
+                                                                                      ),
+                                                                                    ),
+                                                                                    dropdownColor: const Color(
+                                                                                      0xFFD1E8F1,
+                                                                                    ),
+                                                                                    onChanged:
+                                                                                        (
+                                                                                          value,
+                                                                                        ) {
+                                                                                          setStateDialog(
+                                                                                            () {
+                                                                                              selectedOption = value;
+                                                                                            },
+                                                                                          );
+                                                                                        },
+                                                                                    items:
+                                                                                        (item['options']
+                                                                                                    as List<
+                                                                                                      dynamic
+                                                                                                    >? ??
+                                                                                                [])
+                                                                                            .map<
+                                                                                              DropdownMenuItem<
+                                                                                                String
+                                                                                              >
+                                                                                            >(
+                                                                                              (
+                                                                                                option,
+                                                                                              ) =>
+                                                                                                  DropdownMenuItem<
+                                                                                                    String
+                                                                                                  >(
+                                                                                                    value: option.toString(),
+                                                                                                    child: Text(
+                                                                                                      option.toString(),
+                                                                                                      style: const TextStyle(
+                                                                                                        color: Color(
+                                                                                                          0xFF01579B,
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                            )
+                                                                                            .toList(),
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    height: 12,
+                                                                                  ),
+                                                                                  Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                    children: [
+                                                                                      const Text(
+                                                                                        "Số lượng:",
+                                                                                        style: TextStyle(
+                                                                                          color: Color(
+                                                                                            0xFF01579B,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      Row(
+                                                                                        children: [
+                                                                                          IconButton(
+                                                                                            icon: const Icon(
+                                                                                              Icons.remove,
+                                                                                              color: Color(
+                                                                                                0xFF01579B,
+                                                                                              ),
+                                                                                            ),
+                                                                                            onPressed:
+                                                                                                quantity >
+                                                                                                    1
+                                                                                                ? () => setStateDialog(
+                                                                                                    () => quantity--,
+                                                                                                  )
+                                                                                                : null,
+                                                                                          ),
+                                                                                          Text(
+                                                                                            quantity.toString(),
+                                                                                            style: const TextStyle(
+                                                                                              color: Color(
+                                                                                                0xFF01579B,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                          IconButton(
+                                                                                            icon: const Icon(
+                                                                                              Icons.add,
+                                                                                              color: Color(
+                                                                                                0xFF01579B,
+                                                                                              ),
+                                                                                            ),
+                                                                                            onPressed: () => setStateDialog(
+                                                                                              () => quantity++,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    height: 16,
+                                                                                  ),
+                                                                                  Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                                                    children: [
+                                                                                      TextButton(
+                                                                                        onPressed: () => Navigator.pop(
+                                                                                          context,
+                                                                                        ),
+                                                                                        child: const Text(
+                                                                                          "Hủy",
+                                                                                          style: TextStyle(
+                                                                                            color: Color(
+                                                                                              0xFF01579B,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      ElevatedButton(
+                                                                                        style: ElevatedButton.styleFrom(
+                                                                                          backgroundColor: const Color(
+                                                                                            0xFF80DEEA,
+                                                                                          ),
+                                                                                          shape: RoundedRectangleBorder(
+                                                                                            borderRadius: BorderRadius.circular(
+                                                                                              16,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                        onPressed: () {
+                                                                                          item['option'] = selectedOption;
+                                                                                          item['quantity'] = quantity;
+                                                                                          Navigator.pop(
+                                                                                            context,
+                                                                                          );
+                                                                                          setState(
+                                                                                            () {},
+                                                                                          );
+                                                                                        },
+                                                                                        child: const Text(
+                                                                                          "Xác nhận",
+                                                                                          style: TextStyle(
+                                                                                            color: Colors.white,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                ],
+                                                                              );
+                                                                            },
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
                                                             ),
                                                           );
                                                         }).toList(),
@@ -681,12 +740,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF80DEEA),
+                          backgroundColor: const Color(0xFF80DEEA),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Lịch sử đơn',
                           style: TextStyle(color: Colors.white),
                         ),
@@ -711,38 +770,38 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 child: ListView(
                   children: [
                     ...currentOrder.map((order) {
-                      final service = order['service'];
+                      if (order == null) return const SizedBox.shrink();
                       return Card(
-                        color: Color(0xFFD1E8F1),
+                        color: const Color(0xFFD1E8F1),
                         margin: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
                         ),
                         child: ListTile(
                           leading: Icon(
-                            service['icon'],
-                            color: Color(0xFF01579B),
+                            _iconFromString(order['icon'] ?? ''),
+                            color: const Color(0xFF01579B),
                           ),
                           title: Text(
-                            service['name'],
-                            style: TextStyle(color: Color(0xFF01579B)),
+                            order['serviceName'] ?? '',
+                            style: const TextStyle(color: Color(0xFF01579B)),
                           ),
                           subtitle: Text(
-                            '${order['option']} - ${service['unitLabel']}: ${order['quantity']}',
-                            style: TextStyle(color: Color(0xFF455A64)),
+                            '${order['option'] ?? ''} - ${order['unitLabel'] ?? ''}: ${order['quantity'] ?? ''}',
+                            style: const TextStyle(color: Color(0xFF455A64)),
                           ),
                           trailing: Wrap(
                             spacing: 10,
                             children: [
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.edit,
                                   color: Color(0xFF80DEEA),
                                 ),
                                 onPressed: () => _editCurrentOrderItem(order),
                               ),
                               IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.delete,
                                   color: Color(0xFFFF5722),
                                 ),
@@ -761,12 +820,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       child: ElevatedButton(
                         onPressed: _confirmCurrentOrder,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF80DEEA),
+                          backgroundColor: const Color(0xFF80DEEA),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Text(
+                        child: const Text(
                           'Xác nhận đơn',
                           style: TextStyle(color: Colors.white),
                         ),
@@ -793,7 +852,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           final index = i;
                           final order = orderHistory[index];
                           return Card(
-                            color: Color(0xFFD1E8F1),
+                            color: const Color(0xFFD1E8F1),
                             margin: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 6,
@@ -801,32 +860,241 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             child: ExpansionTile(
                               title: Text(
                                 'Đơn #${orderHistory.length - index} (${order.items.length} dịch vụ)',
-                                style: TextStyle(color: Color(0xFF01579B)),
+                                style: const TextStyle(
+                                  color: Color(0xFF01579B),
+                                ),
                               ),
                               children: order.items.map((item) {
-                                final service = item['service'];
                                 return ListTile(
                                   leading: Icon(
-                                    service['icon'],
-                                    color: Color(0xFF01579B),
+                                    _iconFromString(item['icon']),
+                                    color: const Color(0xFF01579B),
                                   ),
                                   title: Text(
-                                    service['name'],
-                                    style: TextStyle(color: Color(0xFF01579B)),
+                                    item['serviceName'],
+                                    style: const TextStyle(
+                                      color: Color(0xFF01579B),
+                                    ),
                                   ),
                                   subtitle: Text(
-                                    '${item['option']} - ${service['unitLabel']}: ${item['quantity']}',
-                                    style: TextStyle(color: Color(0xFF455A64)),
+                                    '${item['option']} - ${item['unitLabel']}: ${item['quantity']}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF455A64),
+                                    ),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Color(0xFF80DEEA),
+                                    ),
+                                    onPressed: () {
+                                      String? selectedOption =
+                                          item['option'] ??
+                                          (item['options'] != null &&
+                                                  (item['options'] as List)
+                                                      .isNotEmpty
+                                              ? item['options'][0]
+                                              : null);
+                                      int quantity = item['quantity'] ?? 1;
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            'Chỉnh sửa ${item['serviceName'] ?? ''}',
+                                            style: const TextStyle(
+                                              color: Color(0xFF01579B),
+                                            ),
+                                          ),
+                                          content: Container(
+                                            decoration: const BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [
+                                                  Color(0xFFE0F7FA),
+                                                  Color(0xFFB2EBF2),
+                                                ],
+                                              ),
+                                            ),
+                                            child: StatefulBuilder(
+                                              builder: (context, setStateDialog) {
+                                                return Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    DropdownButton<String>(
+                                                      value: selectedOption,
+                                                      isExpanded: true,
+                                                      style: const TextStyle(
+                                                        color: Color(
+                                                          0xFF01579B,
+                                                        ),
+                                                      ),
+                                                      dropdownColor:
+                                                          const Color(
+                                                            0xFFD1E8F1,
+                                                          ),
+                                                      onChanged: (value) {
+                                                        setStateDialog(() {
+                                                          selectedOption =
+                                                              value;
+                                                        });
+                                                      },
+                                                      items:
+                                                          (item['options']
+                                                                      as List<
+                                                                        dynamic
+                                                                      >? ??
+                                                                  [])
+                                                              .map<
+                                                                DropdownMenuItem<
+                                                                  String
+                                                                >
+                                                              >(
+                                                                (
+                                                                  option,
+                                                                ) => DropdownMenuItem<String>(
+                                                                  value: option
+                                                                      .toString(),
+                                                                  child: Text(
+                                                                    option
+                                                                        .toString(),
+                                                                    style: const TextStyle(
+                                                                      color: Color(
+                                                                        0xFF01579B,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                              .toList(),
+                                                    ),
+                                                    const SizedBox(height: 12),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Text(
+                                                          "Số lượng:",
+                                                          style: TextStyle(
+                                                            color: Color(
+                                                              0xFF01579B,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            IconButton(
+                                                              icon: const Icon(
+                                                                Icons.remove,
+                                                                color: Color(
+                                                                  0xFF01579B,
+                                                                ),
+                                                              ),
+                                                              onPressed:
+                                                                  quantity > 1
+                                                                  ? () => setStateDialog(
+                                                                      () =>
+                                                                          quantity--,
+                                                                    )
+                                                                  : null,
+                                                            ),
+                                                            Text(
+                                                              quantity
+                                                                  .toString(),
+                                                              style:
+                                                                  const TextStyle(
+                                                                    color: Color(
+                                                                      0xFF01579B,
+                                                                    ),
+                                                                  ),
+                                                            ),
+                                                            IconButton(
+                                                              icon: const Icon(
+                                                                Icons.add,
+                                                                color: Color(
+                                                                  0xFF01579B,
+                                                                ),
+                                                              ),
+                                                              onPressed: () =>
+                                                                  setStateDialog(
+                                                                    () =>
+                                                                        quantity++,
+                                                                  ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 16),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                              ),
+                                                          child: const Text(
+                                                            "Hủy",
+                                                            style: TextStyle(
+                                                              color: Color(
+                                                                0xFF01579B,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                const Color(
+                                                                  0xFF80DEEA,
+                                                                ),
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    16,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                          onPressed: () {
+                                                            item['option'] =
+                                                                selectedOption;
+                                                            item['quantity'] =
+                                                                quantity;
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                            setState(() {});
+                                                          },
+                                                          child: const Text(
+                                                            "Xác nhận",
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 );
                               }).toList(),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  Icons.edit,
-                                  color: Color(0xFF80DEEA),
-                                ),
-                                onPressed: () => _editOrderDialog(order.id),
-                              ),
                             ),
                           );
                         },

@@ -5,21 +5,21 @@ class ServiceOrder {
   final List<Map<String, dynamic>> items;
   final String date;
 
-  ServiceOrder({
-    required this.id,
-    required this.items,
-    required this.date,
-  });
+  ServiceOrder({required this.id, required this.items, required this.date});
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'items': jsonEncode(items),
-        'date': date,
-      };
+    'id': id,
+    'items': jsonEncode(items),
+    'date': date,
+  };
 
   factory ServiceOrder.fromMap(Map<String, dynamic> map) => ServiceOrder(
-        id: map['id'],
-        items: List<Map<String, dynamic>>.from(jsonDecode(map['items'])),
-        date: map['date'],
-      );
-} 
+    id: map['id'],
+    items: List<Map<String, dynamic>>.from(
+      (jsonDecode(map['items']) as List).map(
+        (e) => Map<String, dynamic>.from(e),
+      ),
+    ),
+    date: map['date'],
+  );
+}
