@@ -4,6 +4,7 @@ import '../data/activity_data.dart';
 import '../data/activity_db_helper.dart';
 import 'package:intl/intl.dart';
 import '../models/activity_booking.dart';
+import 'dart:ui'; // Add this import at the top
 
 class ActivitiesScreen extends StatefulWidget {
   @override
@@ -29,9 +30,23 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   String _filterTime = 'Tất cả';
   String _filterAudience = 'Tất cả';
 
-  final List<String> _categories = ['Tất cả', 'Thể thao', 'Thư giãn', 'Văn hóa', 'Ẩm thực', 'Mua sắm'];
+  final List<String> _categories = [
+    'Tất cả',
+    'Thể thao',
+    'Thư giãn',
+    'Văn hóa',
+    'Ẩm thực',
+    'Mua sắm',
+  ];
   final List<String> _times = ['Tất cả', 'Sáng', 'Trưa', 'Chiều', 'Tối'];
-  final List<String> _audiences = ['Tất cả', 'Trẻ em', 'Gia đình', 'Cặp đôi', 'Người lớn', 'Mọi lứa tuổi'];
+  final List<String> _audiences = [
+    'Tất cả',
+    'Trẻ em',
+    'Gia đình',
+    'Cặp đôi',
+    'Người lớn',
+    'Mọi lứa tuổi',
+  ];
   final List<String> _feedbacks = [
     '“Buổi yoga cực chill.” – Minh Tr.',
     '“Bé nhà mình mê lớp vẽ tranh cát.” – Thảo N.',
@@ -56,104 +71,184 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   Future<void> _showBookingDialog(Activity activity) async {
-    DateTime? selectedDate;
-    int numberOfPeople = 1;
-
     await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          void handleBooking() async {
-            if (selectedDate != null) {
-              try {
-                final now = DateTime.now().toIso8601String();
-                await ActivityDbHelper().bookActivity(
-                  activityId: activity.id!,
-                  userEmail: 'test@example.com',
-                  bookingTime: now,
-                  bookingDate: DateFormat('yyyy-MM-dd').format(selectedDate!),
-                  numberOfPeople: numberOfPeople,
-                );
-                Navigator.of(context).pop();
-                await _loadBookings();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đặt lịch thành công!', style: TextStyle(color: Colors.white))),
-                );
-              } catch (e, stack) {
-                print('Booking error: $e\n$stack');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đặt lịch thất bại: $e', style: TextStyle(color: Colors.white))),
-                );
-              }
+      builder: (context) {
+        DateTime? selectedDate;
+        int numberOfPeople = 1;
+
+        Future<void> handleBooking() async {
+          if (selectedDate != null) {
+            try {
+              final now = DateTime.now().toIso8601String();
+              await ActivityDbHelper().bookActivity(
+                activityId: activity.id!,
+                userEmail: 'test@example.com',
+                bookingTime: now,
+                bookingDate: DateFormat('yyyy-MM-dd').format(selectedDate!),
+                numberOfPeople: numberOfPeople,
+              );
+              Navigator.of(context).pop();
+              await _loadBookings();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Đặt lịch thành công!',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            } catch (e, stack) {
+              print('Booking error: $e\n$stack');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Đặt lịch thất bại: $e',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
             }
           }
+        }
 
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            contentPadding: EdgeInsets.all(16),
-            title: Text('Đặt lịch cho ${activity.name}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
-            content: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: Text(selectedDate == null ? 'Chọn ngày' : DateFormat('yyyy-MM-dd').format(selectedDate!)),
-                    trailing: Icon(Icons.calendar_today, color: Color(0xFF01579B)),
-                    onTap: () async {
-                      final now = DateTime.now();
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: now,
-                        firstDate: now,
-                        lastDate: now.add(Duration(days: 365)),
-                      );
-                      if (picked != null) setState(() => selectedDate = picked);
-                    },
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Số người: ', style: TextStyle(color: Color(0xFF01579B))),
-                      SizedBox(width: 8),
-                      IconButton(
-                        icon: Icon(Icons.remove, color: Color(0xFF01579B)),
-                        onPressed: numberOfPeople > 1 ? () => setState(() => numberOfPeople--) : null,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFFE0F7FA).withOpacity(0.85),
+                          Color(0xFFB2EBF2).withOpacity(0.85),
+                        ],
                       ),
-                      Text('$numberOfPeople', style: TextStyle(fontSize: 16, color: Color(0xFF01579B))),
-                      IconButton(
-                        icon: Icon(Icons.add, color: Color(0xFF01579B)),
-                        onPressed: () => setState(() => numberOfPeople++),
-                      ),
-                    ],
+                      color: Colors.white.withOpacity(
+                        0.7,
+                      ), // Optional: for extra frosted effect
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Đặt lịch cho ${activity.name}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // Removed inner gradient container, just use a simple container for layout
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              title: Text(
+                                selectedDate == null
+                                    ? 'Chọn ngày'
+                                    : DateFormat(
+                                        'yyyy-MM-dd',
+                                      ).format(selectedDate!),
+                              ),
+                              trailing: Icon(
+                                Icons.calendar_today,
+                                color: Color(0xFF01579B),
+                              ),
+                              onTap: () async {
+                                final now = DateTime.now();
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: now,
+                                  firstDate: now,
+                                  lastDate: now.add(Duration(days: 365)),
+                                );
+                                if (picked != null)
+                                  setState(() => selectedDate = picked);
+                              },
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Số người: ',
+                                  style: TextStyle(color: Color(0xFF01579B)),
+                                ),
+                                SizedBox(width: 8),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.remove,
+                                    color: Color(0xFF01579B),
+                                  ),
+                                  onPressed: numberOfPeople > 1
+                                      ? () => setState(() => numberOfPeople--)
+                                      : null,
+                                ),
+                                Text(
+                                  '$numberOfPeople',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF01579B),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.add,
+                                    color: Color(0xFF01579B),
+                                  ),
+                                  onPressed: () =>
+                                      setState(() => numberOfPeople++),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(
+                                'Hủy',
+                                style: TextStyle(color: Color(0xFF01579B)),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: selectedDate != null
+                                  ? handleBooking
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF80DEEA),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Text(
+                                'Đặt lịch',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Hủy', style: TextStyle(color: Color(0xFF01579B))),
-              ),
-              ElevatedButton(
-                onPressed: selectedDate != null ? handleBooking : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF80DEEA),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Text('Đặt lịch', style: TextStyle(color: Colors.white)),
               ),
-            ],
-          );
-        },
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -165,7 +260,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Đánh giá: ${activity.name}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+        title: Text(
+          'Đánh giá: ${activity.name}',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF01579B),
+          ),
+        ),
         content: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -192,15 +294,24 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                   });
                 },
               ),
-              Text('Đánh giá: ${_rating.toStringAsFixed(1)}/5', style: TextStyle(fontSize: 16, color: Color(0xFF01579B))),
+              Text(
+                'Đánh giá: ${_rating.toStringAsFixed(1)}/5',
+                style: TextStyle(fontSize: 16, color: Color(0xFF01579B)),
+              ),
               SizedBox(height: 12),
               TextField(
                 controller: _commentController,
                 decoration: InputDecoration(
                   labelText: 'Nhận xét',
                   prefixIcon: Icon(Icons.comment, color: Color(0xFF01579B)),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Color(0xFF80DEEA)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Color(0xFF80DEEA)),
+                  ),
                 ),
                 maxLines: 3,
               ),
@@ -217,14 +328,21 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 ? () {
                     // Logic lưu đánh giá (giả định)
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Đánh giá đã được gửi!', style: TextStyle(color: Colors.white))),
+                      SnackBar(
+                        content: Text(
+                          'Đánh giá đã được gửi!',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     );
                     Navigator.of(context).pop();
                   }
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF80DEEA),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
             child: Text('Gửi đánh giá', style: TextStyle(color: Colors.white)),
           ),
@@ -241,7 +359,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Hoạt động', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Hoạt động',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -268,9 +389,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               _buildHeader(),
               _buildCenterControl(),
               _buildBookingsList(),
-              Expanded(
-                child: _buildActivityList(),
-              ),
+              Expanded(child: _buildActivityList()),
             ],
           ),
         ),
@@ -286,7 +405,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         children: [
           Row(
             children: [
-              Text('Danh sách hoạt động', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+              Text(
+                'Danh sách hoạt động',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF01579B),
+                ),
+              ),
               if (_displayedActivities.length > 8)
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0),
@@ -296,13 +422,22 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                         _showAll = !_showAll;
                       });
                     },
-                    child: Text(_showAll ? 'Thu gọn' : 'Xem thêm', style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+                    child: Text(
+                      _showAll ? 'Thu gọn' : 'Xem thêm',
+                      style: TextStyle(
+                        color: Color(0xFF01579B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
             ],
           ),
           SizedBox(height: 4),
-          Text('Khám phá các trải nghiệm tuyệt vời dành cho mọi lứa tuổi tại Carmelina!', style: TextStyle(fontSize: 16, color: Color(0xFF455A64))),
+          Text(
+            'Khám phá các trải nghiệm tuyệt vời dành cho mọi lứa tuổi tại Carmelina!',
+            style: TextStyle(fontSize: 16, color: Color(0xFF455A64)),
+          ),
         ],
       ),
     );
@@ -352,7 +487,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text('Bộ lọc hoạt động', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B)))),
+                          Expanded(
+                            child: Text(
+                              'Bộ lọc hoạt động',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Color(0xFF01579B),
+                              ),
+                            ),
+                          ),
                           IconButton(
                             icon: Icon(Icons.clear, color: Color(0xFF01579B)),
                             onPressed: () {
@@ -368,23 +512,35 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                         ],
                       ),
                       SizedBox(height: 12),
-                      _buildFilterDropdown('Thể loại', _filterCategory, _categories, (val) {
-                        setState(() {
-                          _filterCategory = val ?? 'Tất cả';
-                        });
-                      }),
+                      _buildFilterDropdown(
+                        'Thể loại',
+                        _filterCategory,
+                        _categories,
+                        (val) {
+                          setState(() {
+                            _filterCategory = val ?? 'Tất cả';
+                          });
+                        },
+                      ),
                       SizedBox(height: 12),
-                      _buildFilterDropdown('Thời gian', _filterTime, _times, (val) {
+                      _buildFilterDropdown('Thời gian', _filterTime, _times, (
+                        val,
+                      ) {
                         setState(() {
                           _filterTime = val ?? 'Tất cả';
                         });
                       }),
                       SizedBox(height: 12),
-                      _buildFilterDropdown('Đối tượng', _filterAudience, _audiences, (val) {
-                        setState(() {
-                          _filterAudience = val ?? 'Tất cả';
-                        });
-                      }),
+                      _buildFilterDropdown(
+                        'Đối tượng',
+                        _filterAudience,
+                        _audiences,
+                        (val) {
+                          setState(() {
+                            _filterAudience = val ?? 'Tất cả';
+                          });
+                        },
+                      ),
                       SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -394,8 +550,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                               setState(() {});
                               Navigator.of(context).pop();
                             },
-                            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                            child: Text('Áp dụng', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF80DEEA),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              'Áp dụng',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
@@ -411,65 +575,81 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  title: Text('Đánh giá nổi bật', style: TextStyle(color: Color(0xFF01579B))),
-                  content: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+                builder: (context) {
+                  return Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0xFFE0F7FA).withOpacity(0.85),
+                                Color(0xFFB2EBF2).withOpacity(0.85),
+                              ],
+                            ),
+                            color: Colors.white.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Đánh giá nổi bật',
+                                style: TextStyle(
+                                  color: Color(0xFF01579B),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: _feedbacks
+                                    .map(
+                                      (f) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          f,
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: Color(0xFF455A64),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                              SizedBox(height: 16),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text(
+                                    'Đóng',
+                                    style: TextStyle(color: Color(0xFF01579B)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _feedbacks.map((f) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6.0),
-                          child: Text(f, style: TextStyle(fontStyle: FontStyle.italic, color: Color(0xFF455A64))),
-                        )).toList(),
-                      ),
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Đóng', style: TextStyle(color: Color(0xFF01579B))),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.event_note, color: Color(0xFF01579B)),
-            tooltip: 'Lịch trình của tôi',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  title: Text('Lịch trình của tôi', style: TextStyle(color: Color(0xFF01579B))),
-                  content: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-                      ),
-                    ),
-                    child: Text('Tính năng quản lý lịch trình sẽ được phát triển ở đây.', style: TextStyle(color: Color(0xFF455A64))),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Đóng', style: TextStyle(color: Color(0xFF01579B))),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),
@@ -478,10 +658,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     );
   }
 
-  Widget _buildFilterDropdown(String label, String value, List<String> items, ValueChanged<String?> onChanged) {
+  Widget _buildFilterDropdown(
+    String label,
+    String value,
+    List<String> items,
+    ValueChanged<String?> onChanged,
+  ) {
     return Row(
       children: [
-        Container(width: 90, child: Text(label, style: TextStyle(color: Color(0xFF01579B)))),
+        Container(
+          width: 90,
+          child: Text(label, style: TextStyle(color: Color(0xFF01579B))),
+        ),
         SizedBox(width: 12),
         Expanded(
           child: DropdownButton<String>(
@@ -489,7 +677,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
             isExpanded: true,
             style: TextStyle(color: Color(0xFF01579B)),
             dropdownColor: Color(0xFFD1E8F1),
-            items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(color: Color(0xFF01579B))))).toList(),
+            items: items
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: TextStyle(color: Color(0xFF01579B))),
+                  ),
+                )
+                .toList(),
             onChanged: onChanged,
           ),
         ),
@@ -497,7 +692,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     );
   }
 
-  Widget _buildFunctionButton({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildFunctionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return Column(
       children: [
         InkWell(
@@ -508,13 +707,23 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
             decoration: BoxDecoration(
               color: Color(0xFF80DEEA).withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Color(0xFF80DEEA).withOpacity(0.5), width: 1),
+              border: Border.all(
+                color: Color(0xFF80DEEA).withOpacity(0.5),
+                width: 1,
+              ),
             ),
             child: Icon(icon, color: Color(0xFF01579B), size: 28),
           ),
         ),
         SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: Color(0xFF01579B), fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Color(0xFF01579B),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -524,7 +733,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       return SizedBox.shrink();
     }
     final latestBooking = _bookings.last;
-    final activity = activities.firstWhere((a) => a.id == latestBooking.activityId, orElse: () => activities[0]);
+    final activity = activities.firstWhere(
+      (a) => a.id == latestBooking.activityId,
+      orElse: () => activities[0],
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -532,15 +744,27 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         children: [
           Row(
             children: [
-              Text('Hoạt động đã đặt', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+              Text(
+                'Hoạt động đã đặt',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Color(0xFF01579B),
+                ),
+              ),
               SizedBox(width: 12),
               TextButton(
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      title: Text('Lịch sử đơn đặt', style: TextStyle(color: Color(0xFF01579B))),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      title: Text(
+                        'Lịch sử đơn đặt',
+                        style: TextStyle(color: Color(0xFF01579B)),
+                      ),
                       content: Container(
                         width: MediaQuery.of(context).size.width * 0.8,
                         decoration: BoxDecoration(
@@ -554,14 +778,31 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: _bookings.reversed.map((b) {
-                              final act = activities.firstWhere((a) => a.id == b.activityId, orElse: () => activities[0]);
+                              final act = activities.firstWhere(
+                                (a) => a.id == b.activityId,
+                                orElse: () => activities[0],
+                              );
                               return Card(
                                 color: Color(0xFFD1E8F1),
                                 child: ListTile(
-                                  leading: Image.asset(act.image, width: 40, height: 40, fit: BoxFit.cover),
-                                  title: Text(act.name, style: TextStyle(color: Color(0xFF01579B))),
-                                  subtitle: Text('Ngày: ${b.bookingDate}\nSố người: ${b.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-                                  trailing: Text(b.status, style: TextStyle(color: Color(0xFF4CAF50))),
+                                  leading: Image.asset(
+                                    act.image,
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  title: Text(
+                                    act.name,
+                                    style: TextStyle(color: Color(0xFF01579B)),
+                                  ),
+                                  subtitle: Text(
+                                    'Ngày: ${b.bookingDate}\nSố người: ${b.numberOfPeople}',
+                                    style: TextStyle(color: Color(0xFF455A64)),
+                                  ),
+                                  trailing: Text(
+                                    b.status,
+                                    style: TextStyle(color: Color(0xFF4CAF50)),
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -571,24 +812,46 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          child: Text('Đóng', style: TextStyle(color: Color(0xFF01579B))),
+                          child: Text(
+                            'Đóng',
+                            style: TextStyle(color: Color(0xFF01579B)),
+                          ),
                         ),
                       ],
                     ),
                   );
                 },
-                child: Text('Lịch sử đơn đặt', style: TextStyle(color: Color(0xFF01579B))),
+                child: Text(
+                  'Lịch sử đơn đặt',
+                  style: TextStyle(color: Color(0xFF01579B)),
+                ),
               ),
             ],
           ),
           Card(
             color: Color(0xFFD1E8F1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: ListTile(
-              leading: Image.asset(activity.image, width: 48, height: 48, fit: BoxFit.cover),
-              title: Text(activity.name, style: TextStyle(color: Color(0xFF01579B))),
-              subtitle: Text('Ngày: ${latestBooking.bookingDate}\nSố người: ${latestBooking.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-              trailing: Text(latestBooking.status, style: TextStyle(color: Color(0xFF4CAF50))),
+              leading: Image.asset(
+                activity.image,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+              ),
+              title: Text(
+                activity.name,
+                style: TextStyle(color: Color(0xFF01579B)),
+              ),
+              subtitle: Text(
+                'Ngày: ${latestBooking.bookingDate}\nSố người: ${latestBooking.numberOfPeople}',
+                style: TextStyle(color: Color(0xFF455A64)),
+              ),
+              trailing: Text(
+                latestBooking.status,
+                style: TextStyle(color: Color(0xFF4CAF50)),
+              ),
             ),
           ),
         ],
@@ -598,10 +861,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
   Widget _buildActivityList() {
     final filtered = activities.where((a) {
-      final matchCategory = _filterCategory == 'Tất cả' || a.category == _filterCategory;
+      final matchCategory =
+          _filterCategory == 'Tất cả' || a.category == _filterCategory;
       final matchTime = _filterTime == 'Tất cả' || a.time.contains(_filterTime);
-      final matchAudience = _filterAudience == 'Tất cả' || a.audience.contains(_filterAudience);
-      final matchSearch = _searchText.isEmpty || a.name.toLowerCase().contains(_searchText.toLowerCase());
+      final matchAudience =
+          _filterAudience == 'Tất cả' || a.audience.contains(_filterAudience);
+      final matchSearch =
+          _searchText.isEmpty ||
+          a.name.toLowerCase().contains(_searchText.toLowerCase());
       return matchCategory && matchTime && matchAudience && matchSearch;
     }).toList();
     final activitiesToShow = _showAll || filtered.length <= 8
@@ -635,15 +902,30 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(activity.image, width: 80, height: 80, fit: BoxFit.cover),
+              Image.asset(
+                activity.image,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
               SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(activity.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+                    Text(
+                      activity.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF01579B),
+                      ),
+                    ),
                     SizedBox(height: 4),
-                    Text(activity.time, style: TextStyle(fontSize: 14, color: Color(0xFF455A64))),
+                    Text(
+                      activity.time,
+                      style: TextStyle(fontSize: 14, color: Color(0xFF455A64)),
+                    ),
                   ],
                 ),
               ),
@@ -677,22 +959,47 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: Image.asset(activity.image, width: double.infinity, height: 180, fit: BoxFit.cover),
+                  child: Image.asset(
+                    activity.image,
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 SizedBox(height: 12),
-                Text(activity.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+                Text(
+                  activity.name,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF01579B),
+                  ),
+                ),
                 SizedBox(height: 8),
-                Text(activity.description, style: TextStyle(fontSize: 15, color: Color(0xFF455A64))),
+                Text(
+                  activity.description,
+                  style: TextStyle(fontSize: 15, color: Color(0xFF455A64)),
+                ),
                 SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(Icons.place, size: 18, color: Color(0xFF01579B)),
                     SizedBox(width: 4),
-                    Expanded(child: Text(activity.location, style: TextStyle(color: Color(0xFF455A64)))),
+                    Expanded(
+                      child: Text(
+                        activity.location,
+                        style: TextStyle(color: Color(0xFF455A64)),
+                      ),
+                    ),
                     SizedBox(width: 16),
                     Icon(Icons.access_time, size: 18, color: Color(0xFF01579B)),
                     SizedBox(width: 4),
-                    Expanded(child: Text(activity.time, style: TextStyle(color: Color(0xFF455A64)))),
+                    Expanded(
+                      child: Text(
+                        activity.time,
+                        style: TextStyle(color: Color(0xFF455A64)),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 8),
@@ -700,7 +1007,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                   children: [
                     Icon(Icons.group, size: 18, color: Color(0xFF01579B)),
                     SizedBox(width: 4),
-                    Expanded(child: Text(activity.audience, style: TextStyle(color: Color(0xFF455A64)))),
+                    Expanded(
+                      child: Text(
+                        activity.audience,
+                        style: TextStyle(color: Color(0xFF455A64)),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -713,21 +1025,33 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF80DEEA),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: Text('Đặt lịch', style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        'Đặt lịch',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                     SizedBox(width: 12),
                     OutlinedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        _showRatingDialog(activity); // Thêm chức năng đánh giá sau khi đóng dialog chi tiết
+                        _showRatingDialog(
+                          activity,
+                        ); // Thêm chức năng đánh giá sau khi đóng dialog chi tiết
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Color(0xFF80DEEA)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: Text('Đánh giá', style: TextStyle(color: Color(0xFF01579B))),
+                      child: Text(
+                        'Đánh giá',
+                        style: TextStyle(color: Color(0xFF01579B)),
+                      ),
                     ),
                   ],
                 ),
@@ -742,10 +1066,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   void _applyFilters() {
     setState(() {
       _displayedActivities = activities.where((a) {
-        final matchCategory = _selectedCategory == 'Tất cả' || a.category == _selectedCategory;
-        final matchTime = _selectedTime == 'Tất cả' || a.time.contains(_selectedTime);
-        final matchAudience = _selectedAudience == 'Tất cả' || a.audience.contains(_selectedAudience);
-        final matchSearch = _searchText.isEmpty || a.name.toLowerCase().contains(_searchText.toLowerCase());
+        final matchCategory =
+            _selectedCategory == 'Tất cả' || a.category == _selectedCategory;
+        final matchTime =
+            _selectedTime == 'Tất cả' || a.time.contains(_selectedTime);
+        final matchAudience =
+            _selectedAudience == 'Tất cả' ||
+            a.audience.contains(_selectedAudience);
+        final matchSearch =
+            _searchText.isEmpty ||
+            a.name.toLowerCase().contains(_searchText.toLowerCase());
         return matchCategory && matchTime && matchAudience && matchSearch;
       }).toList();
       _showAll = false;
