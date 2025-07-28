@@ -3,7 +3,8 @@ import 'package:path/path.dart';
 import '../models/restaurant_order.dart';
 
 class RestaurantOrderDbHelper {
-  static final RestaurantOrderDbHelper _instance = RestaurantOrderDbHelper._internal();
+  static final RestaurantOrderDbHelper _instance =
+      RestaurantOrderDbHelper._internal();
   factory RestaurantOrderDbHelper() => _instance;
   RestaurantOrderDbHelper._internal();
 
@@ -35,7 +36,11 @@ class RestaurantOrderDbHelper {
 
   Future<int> insertOrder(RestaurantOrder order) async {
     final dbClient = await db;
-    return await dbClient.insert('restaurant_orders', order.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'restaurant_orders',
+      order.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<RestaurantOrder>> getAllOrders() async {
@@ -46,11 +51,25 @@ class RestaurantOrderDbHelper {
 
   Future<int> updateOrderStatus(String id, bool isPaid) async {
     final dbClient = await db;
-    return await dbClient.update('restaurant_orders', {'isPaid': isPaid ? 1 : 0}, where: 'id = ?', whereArgs: [id]);
+    return await dbClient.update(
+      'restaurant_orders',
+      {'isPaid': isPaid ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<int> deleteOrder(String id) async {
     final dbClient = await db;
-    return await dbClient.delete('restaurant_orders', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete(
+      'restaurant_orders',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
-} 
+
+  Future<int> deleteAllOrders() async {
+    final dbClient = await db;
+    return await dbClient.delete('restaurant_orders');
+  }
+}

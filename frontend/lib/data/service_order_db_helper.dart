@@ -3,7 +3,8 @@ import 'package:path/path.dart';
 import '../models/service_order.dart';
 
 class ServiceOrderDbHelper {
-  static final ServiceOrderDbHelper _instance = ServiceOrderDbHelper._internal();
+  static final ServiceOrderDbHelper _instance =
+      ServiceOrderDbHelper._internal();
   factory ServiceOrderDbHelper() => _instance;
   ServiceOrderDbHelper._internal();
 
@@ -35,7 +36,11 @@ class ServiceOrderDbHelper {
 
   Future<int> insertOrder(ServiceOrder order) async {
     final dbClient = await db;
-    return await dbClient.insert('service_orders', order.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'service_orders',
+      order.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<ServiceOrder>> getAllOrders() async {
@@ -46,6 +51,15 @@ class ServiceOrderDbHelper {
 
   Future<int> deleteOrder(String id) async {
     final dbClient = await db;
-    return await dbClient.delete('service_orders', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete(
+      'service_orders',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
-} 
+
+  Future<int> deleteAllOrders() async {
+    final dbClient = await db;
+    return await dbClient.delete('service_orders');
+  }
+}

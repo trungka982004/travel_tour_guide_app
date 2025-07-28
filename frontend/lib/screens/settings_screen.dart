@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../data/user_db_helper.dart';
 import '../models/user.dart';
 import 'login_screen.dart';
@@ -41,6 +42,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _canEditPassword = false;
   String? _avatarPath;
 
+  // Add GlobalKeys for each tab
+  final GlobalKey<_RoomBookingTabState> _roomTabKey =
+      GlobalKey<_RoomBookingTabState>();
+  final GlobalKey<_ActivityBookingTabState> _activityTabKey =
+      GlobalKey<_ActivityBookingTabState>();
+  final GlobalKey<_ExcursionBookingTabState> _excursionTabKey =
+      GlobalKey<_ExcursionBookingTabState>();
+  final GlobalKey<_RestaurantBookingTabState> _restaurantTabKey =
+      GlobalKey<_RestaurantBookingTabState>();
+  final GlobalKey<_ServiceBookingTabState> _serviceTabKey =
+      GlobalKey<_ServiceBookingTabState>();
+
   @override
   void initState() {
     super.initState();
@@ -74,7 +87,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final picked = await picker.pickImage(source: source, imageQuality: 85);
       if (picked != null) {
         final appDir = await getApplicationDocumentsDirectory();
-        final fileName = 'avatar_${_user?.id ?? DateTime.now().millisecondsSinceEpoch}.png';
+        final fileName =
+            'avatar_${_user?.id ?? DateTime.now().millisecondsSinceEpoch}.png';
         final saved = await File(picked.path).copy('${appDir.path}/$fileName');
         setState(() {
           _avatarPath = saved.path;
@@ -98,7 +112,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
     }
   }
 
@@ -123,7 +139,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isLoading = false;
       _isEditingProfile = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Profile updated successfully!')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Profile updated successfully!')));
   }
 
   @override
@@ -175,10 +193,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 36,
-                          backgroundImage: _avatarPath != null && _avatarPath!.isNotEmpty
+                          backgroundImage:
+                              _avatarPath != null && _avatarPath!.isNotEmpty
                               ? FileImage(File(_avatarPath!))
-                              : AssetImage('assets/home/view1.png') as ImageProvider,
-                          backgroundColor: Color(0xFFD1E8F1),
+                              : AssetImage('assets/home/view1.png')
+                                    as ImageProvider,
+                          backgroundColor: Theme.of(context).cardColor,
                         ),
                         Positioned(
                           bottom: 0,
@@ -188,30 +208,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               showModalBottomSheet(
                                 context: context,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
                                 ),
                                 builder: (context) => Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+                                      colors: [
+                                        Color(0xFFE0F7FA),
+                                        Color(0xFFB2EBF2),
+                                      ],
                                     ),
                                   ),
                                   child: SafeArea(
                                     child: Wrap(
                                       children: [
                                         ListTile(
-                                          leading: Icon(Icons.camera_alt, color: Color(0xFF01579B)),
-                                          title: Text('Take Photo', style: TextStyle(color: Color(0xFF01579B))),
+                                          leading: Icon(
+                                            Icons.camera_alt,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          title: Text(
+                                            'Take Photo',
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                          ),
                                           onTap: () {
                                             Navigator.pop(context);
                                             _pickAvatar(ImageSource.camera);
                                           },
                                         ),
                                         ListTile(
-                                          leading: Icon(Icons.photo_library, color: Color(0xFF01579B)),
-                                          title: Text('Choose from Gallery', style: TextStyle(color: Color(0xFF01579B))),
+                                          leading: Icon(
+                                            Icons.photo_library,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          title: Text(
+                                            'Choose from Gallery',
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                          ),
                                           onTap: () {
                                             Navigator.pop(context);
                                             _pickAvatar(ImageSource.gallery);
@@ -225,12 +274,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Color(0xFF80DEEA),
+                                color: Theme.of(context).colorScheme.primary,
                                 shape: BoxShape.circle,
-                                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 2,
+                                  ),
+                                ],
                               ),
                               padding: EdgeInsets.all(4),
-                              child: Icon(Icons.add, color: Colors.white, size: 20),
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
@@ -240,16 +298,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     if (_usernameController.text.isNotEmpty)
                       Text(
                         _usernameController.text,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF01579B)),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         setState(() {
                           _isEditingProfile = !_isEditingProfile;
                         });
                       },
-                      child: Text('Edit Profile', style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'Edit Profile',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -264,49 +336,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         controller: _fullNameController,
                         decoration: InputDecoration(
                           labelText: 'Full Name',
-                          prefixIcon: Icon(Icons.person, color: Color(0xFF01579B)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          prefixIcon: Icon(
+                            Icons.person,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 12),
                       TextFormField(
                         controller: _usernameController,
                         decoration: InputDecoration(
                           labelText: 'Username',
-                          prefixIcon: Icon(Icons.account_circle, color: Color(0xFF01579B)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          prefixIcon: Icon(
+                            Icons.account_circle,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 12),
                       TextFormField(
                         controller: _phoneController,
                         decoration: InputDecoration(
                           labelText: 'Phone Number',
-                          prefixIcon: Icon(Icons.phone, color: Color(0xFF01579B)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
                         keyboardType: TextInputType.phone,
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Required' : null,
                       ),
                       SizedBox(height: 12),
                       TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: Icon(Icons.email, color: Color(0xFF01579B)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          prefixIcon: Icon(
+                            Icons.email,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) return 'Required';
-                          final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                          if (!emailRegex.hasMatch(v.trim())) return 'Invalid email';
+                          final emailRegex = RegExp(
+                            r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                          );
+                          if (!emailRegex.hasMatch(v.trim()))
+                            return 'Invalid email';
                           return null;
                         },
                       ),
@@ -316,37 +446,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         readOnly: !_canEditPassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock, color: Color(0xFF01579B)),
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Color(0xFF01579B)),
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                             onPressed: () {
                               setState(() {
                                 _obscurePassword = !_obscurePassword;
                               });
                             },
                           ),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
                         obscureText: _obscurePassword,
-                        validator: (v) => v == null || v.length < 6 ? 'Min 6 characters' : null,
+                        validator: (v) => v == null || v.length < 6
+                            ? 'Min 6 characters'
+                            : null,
                         onTap: () async {
                           if (!_canEditPassword) {
                             final confirmed = await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                title: Text('Change Password?', style: TextStyle(color: Color(0xFF01579B))),
-                                content: Text('Changing your password will affect how you log in next time. Are you sure you want to continue?', style: TextStyle(color: Color(0xFF455A64))),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                title: Text(
+                                  'Change Password?',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                ),
+                                content: Text(
+                                  'Changing your password will affect how you log in next time. Are you sure you want to continue?',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.color,
+                                  ),
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(ctx, false),
-                                    child: Text('Cancel', style: TextStyle(color: Color(0xFF01579B))),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        color: Color(0xFF01579B),
+                                      ),
+                                    ),
                                   ),
                                   ElevatedButton(
-                                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFF80DEEA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
                                     onPressed: () => Navigator.pop(ctx, true),
-                                    child: Text('Continue', style: TextStyle(color: Colors.white)),
+                                    child: Text(
+                                      'Continue',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -364,20 +543,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         controller: _dateOfBirthController,
                         decoration: InputDecoration(
                           labelText: 'Date of Birth',
-                          prefixIcon: Icon(Icons.cake, color: Color(0xFF01579B)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Color(0xFF80DEEA))),
+                          prefixIcon: Icon(
+                            Icons.cake,
+                            color: Color(0xFF01579B),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Color(0xFF80DEEA)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Color(0xFF80DEEA)),
+                          ),
                         ),
                         onTap: () async {
                           FocusScope.of(context).requestFocus(FocusNode());
                           final picked = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.tryParse(_dateOfBirthController.text) ?? DateTime(2000, 1, 1),
+                            initialDate:
+                                DateTime.tryParse(
+                                  _dateOfBirthController.text,
+                                ) ??
+                                DateTime(2000, 1, 1),
                             firstDate: DateTime(1900),
                             lastDate: DateTime.now(),
                           );
                           if (picked != null) {
-                            _dateOfBirthController.text = picked.toIso8601String().split('T')[0];
+                            _dateOfBirthController.text = picked
+                                .toIso8601String()
+                                .split('T')[0];
                           }
                         },
                       ),
@@ -387,8 +581,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _saveProfile,
-                              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                              child: _isLoading ? CircularProgressIndicator(color: Colors.white) : Text('Save Changes', style: TextStyle(color: Colors.white)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF80DEEA),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: _isLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
+                                  : Text(
+                                      'Save Changes',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -399,8 +605,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   _isEditingProfile = false;
                                 });
                               },
-                              style: OutlinedButton.styleFrom(side: BorderSide(color: Color(0xFF80DEEA)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                              child: Text('Cancel', style: TextStyle(color: Color(0xFF01579B))),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Color(0xFF80DEEA)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(color: Color(0xFF01579B)),
+                              ),
                             ),
                           ),
                         ],
@@ -411,25 +625,121 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               SizedBox(height: 24),
               Divider(),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Text('Appearance', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 2,
-                color: Color(0xFFD1E8F1),
-                child: SwitchListTile(
-                  value: false,
-                  onChanged: null,
-                  title: Text('Dark Mode', style: TextStyle(color: Color(0xFF01579B))),
-                  secondary: Icon(Icons.dark_mode, color: Color(0xFF01579B)),
-                ),
-              ),
+              // Logout section
+              _profileAction(Icons.logout, 'Logout', () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isLoggedIn', false);
+                await prefs.remove('userEmail');
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => LoginScreen()),
+                  (route) => false,
+                );
+              }, color: Color(0xFFFF5722)),
+
               Divider(),
+              // Action History / Booking section
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Text('Action History / Booking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Action History / Booking',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFF01579B),
+                        ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Color(0xFFFF5722),
+                      ),
+                      onSelected: (type) async {
+                        bool? confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Delete History',
+                              style: TextStyle(color: Color(0xFF01579B)),
+                            ),
+                            content: Text(
+                              'Are you sure you want to delete all $type history?',
+                              style: TextStyle(color: Color(0xFF455A64)),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(color: Color(0xFF01579B)),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF80DEEA),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          if (type == 'Rooms') {
+                            await RoomBookingDbHelper().deleteAllBookings();
+                            _roomTabKey.currentState?.reload();
+                          } else if (type == 'Activities') {
+                            await ActivityDbHelper().deleteAllBookings();
+                            _activityTabKey.currentState?.reload();
+                          } else if (type == 'Excursions') {
+                            await ExcursionDbHelper().deleteAllBookings();
+                            _excursionTabKey.currentState?.reload();
+                          } else if (type == 'Restaurant') {
+                            await RestaurantOrderDbHelper().deleteAllOrders();
+                            _restaurantTabKey.currentState?.reload();
+                          } else if (type == 'Services') {
+                            await ServiceOrderDbHelper().deleteAllOrders();
+                            _serviceTabKey.currentState?.reload();
+                          }
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 'Rooms',
+                          child: Text('Delete Room History'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Activities',
+                          child: Text('Delete Activity History'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Excursions',
+                          child: Text('Delete Excursion History'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Restaurant',
+                          child: Text('Delete Restaurant History'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Services',
+                          child: Text('Delete Service History'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               SizedBox(
                 height: 400,
@@ -452,11 +762,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Expanded(
                         child: TabBarView(
                           children: [
-                            _RoomBookingTab(),
-                            _ActivityBookingTab(),
-                            _ExcursionBookingTab(),
-                            _RestaurantBookingTab(),
-                            _ServiceBookingTab(),
+                            _RoomBookingTab(key: _roomTabKey),
+                            _ActivityBookingTab(key: _activityTabKey),
+                            _ExcursionBookingTab(key: _excursionTabKey),
+                            _RestaurantBookingTab(key: _restaurantTabKey),
+                            _ServiceBookingTab(key: _serviceTabKey),
                           ],
                         ),
                       ),
@@ -464,15 +774,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              _profileAction(Icons.logout, 'Logout', () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isLoggedIn', false);
-                await prefs.remove('userEmail');
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => LoginScreen()),
-                  (route) => false,
-                );
-              }, color: Color(0xFFFF5722)),
             ],
           ),
         ),
@@ -480,7 +781,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _profileAction(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+  Widget _profileAction(
+    IconData icon,
+    String label,
+    VoidCallback onTap, {
+    Color? color,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
       child: Card(
@@ -489,7 +795,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         color: Color(0xFFD1E8F1),
         child: ListTile(
           leading: Icon(icon, color: color ?? Color(0xFF01579B)),
-          title: Text(label, style: TextStyle(color: color ?? Color(0xFF01579B))),
+          title: Text(
+            label,
+            style: TextStyle(color: color ?? Color(0xFF01579B)),
+          ),
           onTap: onTap,
         ),
       ),
@@ -498,6 +807,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _RoomBookingTab extends StatefulWidget {
+  const _RoomBookingTab({Key? key}) : super(key: key);
   @override
   State<_RoomBookingTab> createState() => _RoomBookingTabState();
 }
@@ -515,9 +825,17 @@ class _RoomBookingTabState extends State<_RoomBookingTab> {
     setState(() {});
   }
 
+  void reload() => _load();
+
   @override
   Widget build(BuildContext context) {
-    if (_bookings.isEmpty) return Center(child: Text('No room bookings.', style: TextStyle(color: Color(0xFF455A64))));
+    if (_bookings.isEmpty)
+      return Center(
+        child: Text(
+          'No room bookings.',
+          style: TextStyle(color: Color(0xFF455A64)),
+        ),
+      );
     return ListView.builder(
       itemCount: _bookings.length,
       itemBuilder: (ctx, i) {
@@ -526,20 +844,40 @@ class _RoomBookingTabState extends State<_RoomBookingTab> {
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           color: Color(0xFFD1E8F1),
           child: ListTile(
-            title: Text(b.roomName, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            title: Text(
+              b.roomName,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF01579B),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Check-in: ${b.checkIn.toString().split(" ")[0]}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Check-out: ${b.checkOut.toString().split(" ")[0]}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Guests: ${b.adults} adults, ${b.children} children', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
+                Text(
+                  'Check-in: ${b.checkIn.toString().split(" ")[0]}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Check-out: ${b.checkOut.toString().split(" ")[0]}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Guests: ${b.adults} adults, ${b.children} children',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Status: ${b.status}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
               ],
             ),
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
                 builder: (ctx) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -554,16 +892,47 @@ class _RoomBookingTabState extends State<_RoomBookingTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Room Booking Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                        Text(
+                          'Room Booking Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
                         SizedBox(height: 8),
-                        Text('Room: ${b.roomName}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Check-in: ${b.checkIn}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Check-out: ${b.checkOut}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Adults: ${b.adults}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Children: ${b.children}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Guest: ${b.guestName}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Booking ID: ${b.id}', style: TextStyle(color: Color(0xFF455A64))),
+                        Text(
+                          'Room: ${b.roomName}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Check-in: ${b.checkIn}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Check-out: ${b.checkOut}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Adults: ${b.adults}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Children: ${b.children}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Guest: ${b.guestName}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Status: ${b.status}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Booking ID: ${b.id}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
                       ],
                     ),
                   ),
@@ -578,6 +947,7 @@ class _RoomBookingTabState extends State<_RoomBookingTab> {
 }
 
 class _ActivityBookingTab extends StatefulWidget {
+  const _ActivityBookingTab({Key? key}) : super(key: key);
   @override
   State<_ActivityBookingTab> createState() => _ActivityBookingTabState();
 }
@@ -603,9 +973,17 @@ class _ActivityBookingTabState extends State<_ActivityBookingTab> {
     }
   }
 
+  void reload() => _load();
+
   @override
   Widget build(BuildContext context) {
-    if (_bookings.isEmpty) return Center(child: Text('No activity bookings.', style: TextStyle(color: Color(0xFF455A64))));
+    if (_bookings.isEmpty)
+      return Center(
+        child: Text(
+          'No activity bookings.',
+          style: TextStyle(color: Color(0xFF455A64)),
+        ),
+      );
     return ListView.builder(
       itemCount: _bookings.length,
       itemBuilder: (ctx, i) {
@@ -616,21 +994,43 @@ class _ActivityBookingTabState extends State<_ActivityBookingTab> {
           color: Color(0xFFD1E8F1),
           child: ListTile(
             leading: activity != null
-                ? Image.asset(activity.image, width: 48, height: 48, fit: BoxFit.cover)
+                ? Image.asset(
+                    activity.image,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  )
                 : null,
-            title: Text(activity?.name ?? 'Activity ${b.activityId}', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            title: Text(
+              activity?.name ?? 'Activity ${b.activityId}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF01579B),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Date: ${b.bookingDate}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('People: ${b.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
+                Text(
+                  'Date: ${b.bookingDate}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'People: ${b.numberOfPeople}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Status: ${b.status}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
               ],
             ),
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
                 builder: (ctx) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -645,22 +1045,64 @@ class _ActivityBookingTabState extends State<_ActivityBookingTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Activity Booking Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                        Text(
+                          'Activity Booking Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
                         SizedBox(height: 8),
                         if (activity != null) ...[
-                          Image.asset(activity.image, width: 80, height: 80, fit: BoxFit.cover),
+                          Image.asset(
+                            activity.image,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
                           SizedBox(height: 8),
-                          Text('Activity: ${activity.name}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Category: ${activity.category}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Location: ${activity.location}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Time: ${activity.time}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Audience: ${activity.audience}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Description: ${activity.description}', style: TextStyle(color: Color(0xFF455A64))),
+                          Text(
+                            'Activity: ${activity.name}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Category: ${activity.category}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Location: ${activity.location}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Time: ${activity.time}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Audience: ${activity.audience}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Description: ${activity.description}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
                         ],
-                        Text('Date: ${b.bookingDate}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('People: ${b.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Booking ID: ${b.id}', style: TextStyle(color: Color(0xFF455A64))),
+                        Text(
+                          'Date: ${b.bookingDate}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'People: ${b.numberOfPeople}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Status: ${b.status}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Booking ID: ${b.id}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
                       ],
                     ),
                   ),
@@ -675,6 +1117,7 @@ class _ActivityBookingTabState extends State<_ActivityBookingTab> {
 }
 
 class _ExcursionBookingTab extends StatefulWidget {
+  const _ExcursionBookingTab({Key? key}) : super(key: key);
   @override
   State<_ExcursionBookingTab> createState() => _ExcursionBookingTabState();
 }
@@ -700,9 +1143,17 @@ class _ExcursionBookingTabState extends State<_ExcursionBookingTab> {
     }
   }
 
+  void reload() => _load();
+
   @override
   Widget build(BuildContext context) {
-    if (_bookings.isEmpty) return Center(child: Text('No excursion bookings.', style: TextStyle(color: Color(0xFF455A64))));
+    if (_bookings.isEmpty)
+      return Center(
+        child: Text(
+          'No excursion bookings.',
+          style: TextStyle(color: Color(0xFF455A64)),
+        ),
+      );
     return ListView.builder(
       itemCount: _bookings.length,
       itemBuilder: (ctx, i) {
@@ -713,21 +1164,43 @@ class _ExcursionBookingTabState extends State<_ExcursionBookingTab> {
           color: Color(0xFFD1E8F1),
           child: ListTile(
             leading: excursion != null
-                ? Image.asset(excursion.image, width: 48, height: 48, fit: BoxFit.cover)
+                ? Image.asset(
+                    excursion.image,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  )
                 : null,
-            title: Text(excursion?.name ?? 'Excursion ${b.excursionId}', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            title: Text(
+              excursion?.name ?? 'Excursion ${b.excursionId}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF01579B),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Date: ${b.bookingDate}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('People: ${b.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
+                Text(
+                  'Date: ${b.bookingDate}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'People: ${b.numberOfPeople}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Status: ${b.status}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
               ],
             ),
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
                 builder: (ctx) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -742,21 +1215,60 @@ class _ExcursionBookingTabState extends State<_ExcursionBookingTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Excursion Booking Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                        Text(
+                          'Excursion Booking Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
                         SizedBox(height: 8),
                         if (excursion != null) ...[
-                          Image.asset(excursion.image, width: 80, height: 80, fit: BoxFit.cover),
+                          Image.asset(
+                            excursion.image,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
                           SizedBox(height: 8),
-                          Text('Excursion: ${excursion.name}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Category: ${excursion.category}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Location: ${excursion.location}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Time: ${excursion.time}', style: TextStyle(color: Color(0xFF455A64))),
-                          Text('Description: ${excursion.description}', style: TextStyle(color: Color(0xFF455A64))),
+                          Text(
+                            'Excursion: ${excursion.name}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Category: ${excursion.category}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Location: ${excursion.location}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Time: ${excursion.time}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
+                          Text(
+                            'Description: ${excursion.description}',
+                            style: TextStyle(color: Color(0xFF455A64)),
+                          ),
                         ],
-                        Text('Date: ${b.bookingDate}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('People: ${b.numberOfPeople}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Status: ${b.status}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Booking ID: ${b.id}', style: TextStyle(color: Color(0xFF455A64))),
+                        Text(
+                          'Date: ${b.bookingDate}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'People: ${b.numberOfPeople}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Status: ${b.status}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Booking ID: ${b.id}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
                       ],
                     ),
                   ),
@@ -771,6 +1283,7 @@ class _ExcursionBookingTabState extends State<_ExcursionBookingTab> {
 }
 
 class _RestaurantBookingTab extends StatefulWidget {
+  const _RestaurantBookingTab({Key? key}) : super(key: key);
   @override
   State<_RestaurantBookingTab> createState() => _RestaurantBookingTabState();
 }
@@ -788,9 +1301,17 @@ class _RestaurantBookingTabState extends State<_RestaurantBookingTab> {
     setState(() {});
   }
 
+  void reload() => _load();
+
   @override
   Widget build(BuildContext context) {
-    if (_orders.isEmpty) return Center(child: Text('No restaurant orders.', style: TextStyle(color: Color(0xFF455A64))));
+    if (_orders.isEmpty)
+      return Center(
+        child: Text(
+          'No restaurant orders.',
+          style: TextStyle(color: Color(0xFF455A64)),
+        ),
+      );
     return ListView.builder(
       itemCount: _orders.length,
       itemBuilder: (ctx, i) {
@@ -799,18 +1320,32 @@ class _RestaurantBookingTabState extends State<_RestaurantBookingTab> {
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           color: Color(0xFFD1E8F1),
           child: ListTile(
-            title: Text('Order ID: ${o.id}', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            title: Text(
+              'Order ID: ${o.id}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF01579B),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Items: ${o.items.map((item) => item['restaurant'] ?? item['name'] ?? '').join(", ")}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Paid: ${o.isPaid ? 'Yes' : 'No'}', style: TextStyle(color: Color(0xFF455A64))),
+                Text(
+                  'Items: ${o.items.map((item) => item['restaurant'] ?? item['name'] ?? '').join(", ")}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Paid: ${o.isPaid ? 'Yes' : 'No'}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
               ],
             ),
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
                 builder: (ctx) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -825,12 +1360,30 @@ class _RestaurantBookingTabState extends State<_RestaurantBookingTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Restaurant Order Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                        Text(
+                          'Restaurant Order Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
                         SizedBox(height: 8),
-                        Text('Order ID: ${o.id}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Paid: ${o.isPaid ? 'Yes' : 'No'}', style: TextStyle(color: Color(0xFF455A64))),
+                        Text(
+                          'Order ID: ${o.id}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Paid: ${o.isPaid ? 'Yes' : 'No'}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
                         ...o.items
-                            .map((item) => Text('• ${item['restaurant'] ?? item['name'] ?? ''} x${item['quantity'] ?? 1}', style: TextStyle(color: Color(0xFF455A64))))
+                            .map(
+                              (item) => Text(
+                                '• ${item['restaurant'] ?? item['name'] ?? ''} x${item['quantity'] ?? 1}',
+                                style: TextStyle(color: Color(0xFF455A64)),
+                              ),
+                            )
                             .toList(),
                       ],
                     ),
@@ -846,6 +1399,7 @@ class _RestaurantBookingTabState extends State<_RestaurantBookingTab> {
 }
 
 class _ServiceBookingTab extends StatefulWidget {
+  const _ServiceBookingTab({Key? key}) : super(key: key);
   @override
   State<_ServiceBookingTab> createState() => _ServiceBookingTabState();
 }
@@ -863,9 +1417,17 @@ class _ServiceBookingTabState extends State<_ServiceBookingTab> {
     setState(() {});
   }
 
+  void reload() => _load();
+
   @override
   Widget build(BuildContext context) {
-    if (_orders.isEmpty) return Center(child: Text('No service orders.', style: TextStyle(color: Color(0xFF455A64))));
+    if (_orders.isEmpty)
+      return Center(
+        child: Text(
+          'No service orders.',
+          style: TextStyle(color: Color(0xFF455A64)),
+        ),
+      );
     return ListView.builder(
       itemCount: _orders.length,
       itemBuilder: (ctx, i) {
@@ -874,18 +1436,32 @@ class _ServiceBookingTabState extends State<_ServiceBookingTab> {
           margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           color: Color(0xFFD1E8F1),
           child: ListTile(
-            title: Text('Order ID: ${o.id}', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            title: Text(
+              'Order ID: ${o.id}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF01579B),
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Items: ${o.items.map((item) => item['service']?['name'] ?? '').join(", ")}', style: TextStyle(color: Color(0xFF455A64))),
-                Text('Date: ${o.date}', style: TextStyle(color: Color(0xFF455A64))),
+                Text(
+                  'Items: ${o.items.map((item) => item['service']?['name'] ?? '').join(", ")}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
+                Text(
+                  'Date: ${o.date}',
+                  style: TextStyle(color: Color(0xFF455A64)),
+                ),
               ],
             ),
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
                 builder: (ctx) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -900,12 +1476,30 @@ class _ServiceBookingTabState extends State<_ServiceBookingTab> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Service Order Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
+                        Text(
+                          'Service Order Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF01579B),
+                          ),
+                        ),
                         SizedBox(height: 8),
-                        Text('Order ID: ${o.id}', style: TextStyle(color: Color(0xFF455A64))),
-                        Text('Date: ${o.date}', style: TextStyle(color: Color(0xFF455A64))),
+                        Text(
+                          'Order ID: ${o.id}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
+                        Text(
+                          'Date: ${o.date}',
+                          style: TextStyle(color: Color(0xFF455A64)),
+                        ),
                         ...o.items
-                            .map((item) => Text('• ${item['service']?['name'] ?? ''} x${item['quantity'] ?? 1}', style: TextStyle(color: Color(0xFF455A64))))
+                            .map(
+                              (item) => Text(
+                                '• ${item['service']?['name'] ?? ''} x${item['quantity'] ?? 1}',
+                                style: TextStyle(color: Color(0xFF455A64)),
+                              ),
+                            )
                             .toList(),
                       ],
                     ),

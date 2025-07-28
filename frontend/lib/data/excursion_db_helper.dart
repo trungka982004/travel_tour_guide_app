@@ -50,7 +50,9 @@ class ExcursionDbHelper {
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
-          await db.execute('ALTER TABLE excursion_bookings ADD COLUMN user_name TEXT NOT NULL DEFAULT ""');
+          await db.execute(
+            'ALTER TABLE excursion_bookings ADD COLUMN user_name TEXT NOT NULL DEFAULT ""',
+          );
         }
       },
     );
@@ -58,7 +60,11 @@ class ExcursionDbHelper {
 
   Future<int> insertExcursion(Excursion excursion) async {
     final dbClient = await db;
-    return await dbClient.insert('excursions', excursion.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'excursions',
+      excursion.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<Excursion>> getAllExcursions() async {
@@ -69,12 +75,21 @@ class ExcursionDbHelper {
 
   Future<int> updateExcursion(Excursion excursion) async {
     final dbClient = await db;
-    return await dbClient.update('excursions', excursion.toMap(), where: 'id = ?', whereArgs: [excursion.id]);
+    return await dbClient.update(
+      'excursions',
+      excursion.toMap(),
+      where: 'id = ?',
+      whereArgs: [excursion.id],
+    );
   }
 
   Future<int> deleteExcursion(int id) async {
     final dbClient = await db;
-    return await dbClient.delete('excursions', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete(
+      'excursions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // Booking logic
@@ -101,11 +116,25 @@ class ExcursionDbHelper {
 
   Future<List<Map<String, dynamic>>> getBookingsByUser(String userEmail) async {
     final dbClient = await db;
-    return await dbClient.query('excursion_bookings', where: 'user_email = ?', whereArgs: [userEmail]);
+    return await dbClient.query(
+      'excursion_bookings',
+      where: 'user_email = ?',
+      whereArgs: [userEmail],
+    );
   }
 
   Future<int> cancelBooking(int bookingId) async {
     final dbClient = await db;
-    return await dbClient.update('excursion_bookings', {'status': 'cancelled'}, where: 'id = ?', whereArgs: [bookingId]);
+    return await dbClient.update(
+      'excursion_bookings',
+      {'status': 'cancelled'},
+      where: 'id = ?',
+      whereArgs: [bookingId],
+    );
   }
-} 
+
+  Future<int> deleteAllBookings() async {
+    final dbClient = await db;
+    return await dbClient.delete('excursion_bookings');
+  }
+}

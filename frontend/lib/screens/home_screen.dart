@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen>
   late AnimationController _controller;
   String? _userName;
   String? _avatarPath;
+  int _selectedTabIndex = 0;
 
   @override
   void initState() {
@@ -71,12 +72,23 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-            CircleAvatar(
-              backgroundColor: Color(0xFF0288D1),
-              radius: 20,
-              backgroundImage: _avatarPath != null && _avatarPath!.isNotEmpty
-                  ? FileImage(File(_avatarPath!))
-                  : AssetImage('assets/home/view1.png') as ImageProvider,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SettingsScreen(onAvatarChanged: _onAvatarChanged),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                backgroundColor: Color(0xFF0288D1),
+                radius: 20,
+                backgroundImage: _avatarPath != null && _avatarPath!.isNotEmpty
+                    ? FileImage(File(_avatarPath!))
+                    : AssetImage('assets/home/view1.png') as ImageProvider,
+              ),
             ),
           ],
         ),
@@ -91,318 +103,322 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Banner with image background
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/home/view1.png'),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.4),
-                      BlendMode.darken,
-                    ),
-                  ),
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF0288D1).withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Container(
+      body: IndexedStack(
+        index: _selectedTabIndex,
+        children: [
+          // Tab 0: Home content (existing home UI)
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome Banner with image background
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF01579B).withOpacity(0.5),
-                        Colors.transparent,
-                      ],
+                    image: DecorationImage(
+                      image: AssetImage('assets/home/view1.png'),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.4),
+                        BlendMode.darken,
+                      ),
                     ),
                     borderRadius: BorderRadius.circular(32),
-                    border: Border.all(
-                      color: Color(0xFFF5F6F5).withOpacity(0.3),
-                      width: 1,
-                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF0288D1).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Ready to Explore',
-                        style: TextStyle(
-                          color: Color(0xFFF5F6F5),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              color: Color(0xFF0288D1).withOpacity(0.5),
-                              offset: Offset(1, 1),
-                              blurRadius: 3,
-                            ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF01579B).withOpacity(0.5),
+                          Colors.transparent,
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Carmelina Resort!',
-                        style: TextStyle(
-                          color: Color(0xFFF5F6F5),
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
-                          shadows: [
-                            Shadow(
-                              color: Color(0xFF0288D1).withOpacity(0.5),
-                              offset: Offset(1, 1),
-                              blurRadius: 3,
-                            ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: Color(0xFFF5F6F5).withOpacity(0.3),
+                        width: 1,
                       ),
-                      SizedBox(height: 24),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Color(0xFFD1E8F1),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(0xFF0288D1).withOpacity(0.2),
-                              blurRadius: 6,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Ready to Explore',
+                          style: TextStyle(
+                            color: Color(0xFFF5F6F5),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
+                            shadows: [
+                              Shadow(
+                                color: Color(0xFF0288D1).withOpacity(0.5),
+                                offset: Offset(1, 1),
+                                blurRadius: 3,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Find beaches, food, adventures...',
-                            hintStyle: TextStyle(
-                              color: Color(0xFF01579B),
-                              fontSize: 14,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Color(0xFF01579B),
-                              size: 20,
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            filled: true,
-                            fillColor: Color(0xFFD1E8F1),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 16,
+                        SizedBox(height: 8),
+                        Text(
+                          'Carmelina Resort!',
+                          style: TextStyle(
+                            color: Color(0xFFF5F6F5),
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                color: Color(0xFF0288D1).withOpacity(0.5),
+                                offset: Offset(1, 1),
+                                blurRadius: 3,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 24),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD1E8F1),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF0288D1).withOpacity(0.2),
+                                blurRadius: 6,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Find beaches, food, adventures...',
+                              hintStyle: TextStyle(
+                                color: Color(0xFF01579B),
+                                fontSize: 14,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Color(0xFF01579B),
+                                size: 20,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFFD1E8F1),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 16,
+                              ),
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
+                // Top Event
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'Top Ocean Events',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Color(0xFF01579B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Container(
+                  height: 200,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _insightInfoCard(
+                        title: 'Weather',
+                        icon: Icons.wb_sunny,
+                        subtitle: '# Sunny, 28°C',
+                        bannerColor: Color(0xFFBBDEFB),
+                      ),
+                      _eventInsightCard(
+                        title: 'Beach Party Tonight!',
+                        imageAsset: 'assets/home/beach.png',
+                        location: 'Coral Beach',
+                        startTime: DateTime.now().add(Duration(hours: 2)),
+                      ),
+                      _insightInfoCard(
+                        title: 'Seafood Dining',
+                        imageAsset: 'assets/home/dining.png',
+                        subtitle: 'Fresh Catch Buffet',
+                        location: 'Ocean Breeze Restaurant',
+                        time: '18:00 - 21:00',
+                      ),
+                      _insightInfoCard(
+                        title: 'Spa by the Sea',
+                        imageAsset: 'assets/home/spa.png',
+                        subtitle: '15% Off Coastal Massage',
+                        location: 'Seaside Spa',
+                        time: '09:00 - 20:00',
                       ),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(height: 24),
-              // Top Event
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  'Top Ocean Events',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Color(0xFF01579B), fontWeight: FontWeight.bold),
+                SizedBox(height: 24),
+                // Ocean Adventures Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'Ocean Adventures',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Color(0xFF01579B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(height: 12),
-              Container(
-                height: 200,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _insightInfoCard(
-                      title: 'Weather',
-                      icon: Icons.wb_sunny,
-                      subtitle: '# Sunny, 28°C',
-                      bannerColor: Color(0xFFBBDEFB),
-                    ),
-                    _eventInsightCard(
-                      title: 'Beach Party Tonight!',
-                      imageAsset: 'assets/home/beach.png',
-                      location: 'Coral Beach',
-                      startTime: DateTime.now().add(Duration(hours: 2)),
-                    ),
-                    _insightInfoCard(
-                      title: 'Seafood Dining',
-                      imageAsset: 'assets/home/dining.png',
-                      subtitle: 'Fresh Catch Buffet',
-                      location: 'Ocean Breeze Restaurant',
-                      time: '18:00 - 21:00',
-                    ),
-                    _insightInfoCard(
-                      title: 'Spa by the Sea',
-                      imageAsset: 'assets/home/spa.png',
-                      subtitle: '15% Off Coastal Massage',
-                      location: 'Seaside Spa',
-                      time: '09:00 - 20:00',
-                    ),
-                  ],
+                SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 1.2,
+                    children: [
+                      _categoryIcon(
+                        context,
+                        Icons.directions_run,
+                        'Activities',
+                        ActivitiesScreen(),
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                      _categoryIcon(
+                        context,
+                        Icons.kayaking,
+                        'Excursions',
+                        ExcursionsScreen(),
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                      _categoryIcon(
+                        context,
+                        Icons.restaurant,
+                        'Dining',
+                        RestaurantScreen(),
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                      _categoryIcon(
+                        context,
+                        Icons.room_service,
+                        'Services',
+                        ServicesScreen(),
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                      _categoryIcon(
+                        context,
+                        Icons.book_online,
+                        'Bookings',
+                        BookingScreen(
+                          onBackToHome: (i) => widget.onTabChange?.call(i),
+                        ),
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                      _categoryIcon(
+                        context,
+                        Icons.settings,
+                        'Settings',
+                        null,
+                        tabIndex: 3,
+                        iconSize: 24,
+                        textSize: 12,
+                        containerPadding: 8,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 24),
-              // Ocean Adventures Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  'Ocean Adventures',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Color(0xFF01579B), fontWeight: FontWeight.bold),
+                SizedBox(height: 24),
+                // Top Coastal Destinations
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'Top Coastal Destinations',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Color(0xFF01579B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 1.2,
-                  children: [
-                    _categoryIcon(
-                      context,
-                      Icons.directions_run,
-                      'Activities',
-                      ActivitiesScreen(),
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                    _categoryIcon(
-                      context,
-                      Icons.kayaking,
-                      'Excursions',
-                      ExcursionsScreen(),
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                    _categoryIcon(
-                      context,
-                      Icons.restaurant,
-                      'Dining',
-                      RestaurantScreen(),
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                    _categoryIcon(
-                      context,
-                      Icons.room_service,
-                      'Services',
-                      ServicesScreen(),
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                    _categoryIcon(
-                      context,
-                      Icons.book_online,
-                      'Bookings',
-                      null,
-                      tabIndex: 2,
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                    _categoryIcon(
-                      context,
-                      Icons.person,
-                      'Profile',
-                      null,
-                      tabIndex: 3,
-                      iconSize: 24,
-                      textSize: 12,
-                      containerPadding: 8,
-                    ),
-                  ],
+                SizedBox(height: 16),
+                Container(
+                  height: 220,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _localCard(
+                        'Water Sports',
+                        'Dive into thrilling ocean adventures.',
+                        'assets/home/sport.png',
+                      ),
+                      _localCard(
+                        'Sunset Ceremony',
+                        'Sail under the vibrant coastal sunset.',
+                        'assets/home/ceremony.png',
+                      ),
+                      _localCard(
+                        'Seafood Dining',
+                        'Savor fresh ocean delicacies.',
+                        'assets/home/restaurant.png',
+                      ),
+                      _localCard(
+                        'Beachfront Relax',
+                        'Unwind by the turquoise waves.',
+                        'assets/home/pool.png',
+                      ),
+                      _localCard(
+                        'Coral Reef Tour',
+                        'Explore vibrant underwater ecosystems.',
+                        'assets/home/beach.png',
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 24),
-              // Top Coastal Destinations
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  'Top Coastal Destinations',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(color: Color(0xFF01579B), fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 16),
-              Container(
-                height: 220,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _localCard(
-                      'Water Sports',
-                      'Dive into thrilling ocean adventures.',
-                      'assets/home/sport.png',
-                    ),
-                    _localCard(
-                      'Sunset Ceremony',
-                      'Sail under the vibrant coastal sunset.',
-                      'assets/home/ceremony.png',
-                    ),
-                    _localCard(
-                      'Seafood Dining',
-                      'Savor fresh ocean delicacies.',
-                      'assets/home/restaurant.png',
-                    ),
-                    _localCard(
-                      'Beachfront Relax',
-                      'Unwind by the turquoise waves.',
-                      'assets/home/pool.png',
-                    ),
-                    _localCard(
-                      'Coral Reef Tour',
-                      'Explore vibrant underwater ecosystems.',
-                      'assets/home/beach.png',
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 32),
-            ],
+                SizedBox(height: 32),
+              ],
+            ),
           ),
-        ),
+          // Tab 1: Explore (replace with your actual ExploreScreen if needed)
+          Center(child: Text('Explore')), // Placeholder
+          // Tab 2: Bookings - Use the actual BookingScreen
+          BookingScreen(onBackToHome: (i) => widget.onTabChange?.call(i)),
+          // Tab 3: Settings
+          SettingsScreen(onAvatarChanged: _onAvatarChanged),
+        ],
       ),
     );
   }
@@ -735,23 +751,15 @@ class _HomeScreenState extends State<HomeScreen>
   }) {
     return GestureDetector(
       onTap: () {
-        if (tabIndex != null && widget.onTabChange != null) {
-          widget.onTabChange!(tabIndex);
+        if (tabIndex != null) {
+          setState(() {
+            _selectedTabIndex = tabIndex;
+          });
         } else if (screen != null) {
-          if (label == 'Profile') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    SettingsScreen(onAvatarChanged: _onAvatarChanged),
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => screen),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => screen),
+          );
         }
       },
       child: Column(
@@ -761,7 +769,10 @@ class _HomeScreenState extends State<HomeScreen>
             decoration: BoxDecoration(
               color: Color(0xFF80DEEA).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Color(0xFF80DEEA).withOpacity(0.5), width: 1),
+              border: Border.all(
+                color: Color(0xFF80DEEA).withOpacity(0.5),
+                width: 1,
+              ),
             ),
             padding: EdgeInsets.all(containerPadding),
             child: Icon(icon, color: Color(0xFF01579B), size: iconSize),

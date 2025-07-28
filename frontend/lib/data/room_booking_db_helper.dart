@@ -41,7 +41,11 @@ class RoomBookingDbHelper {
 
   Future<int> insertBooking(BookingOrder order) async {
     final dbClient = await db;
-    return await dbClient.insert('room_bookings', order.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'room_bookings',
+      order.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<BookingOrder>> getAllBookings() async {
@@ -52,11 +56,25 @@ class RoomBookingDbHelper {
 
   Future<int> updateBookingStatus(String id, String status) async {
     final dbClient = await db;
-    return await dbClient.update('room_bookings', {'status': status}, where: 'id = ?', whereArgs: [id]);
+    return await dbClient.update(
+      'room_bookings',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<int> deleteBooking(String id) async {
     final dbClient = await db;
-    return await dbClient.delete('room_bookings', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete(
+      'room_bookings',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
-} 
+
+  Future<int> deleteAllBookings() async {
+    final dbClient = await db;
+    return await dbClient.delete('room_bookings');
+  }
+}

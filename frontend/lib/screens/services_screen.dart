@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:convert';
 import '../data/service_order_db_helper.dart';
 import '../models/service_order.dart';
@@ -120,7 +121,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Chọn thông tin cho ${service['name']}',
-          style: TextStyle(color: Color(0xFF01579B)),
+          style: TextStyle(color: Theme.of(context).colorScheme.primary),
         ),
         content: Container(
           decoration: BoxDecoration(
@@ -138,8 +139,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   DropdownButton<String>(
                     value: selectedOption,
                     isExpanded: true,
-                    style: TextStyle(color: Color(0xFF01579B)),
-                    dropdownColor: Color(0xFFD1E8F1),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    dropdownColor: Theme.of(context).cardColor,
                     onChanged: (value) {
                       setStateDialog(() {
                         selectedOption = value;
@@ -151,7 +154,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             value: option,
                             child: Text(
                               option,
-                              style: TextStyle(color: Color(0xFF01579B)),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
                         )
@@ -163,22 +168,32 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     children: [
                       Text(
                         "Số lượng:",
-                        style: TextStyle(color: Color(0xFF01579B)),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.remove, color: Color(0xFF01579B)),
+                            icon: Icon(
+                              Icons.remove,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                             onPressed: quantity > 1
                                 ? () => setStateDialog(() => quantity--)
                                 : null,
                           ),
                           Text(
                             quantity.toString(),
-                            style: TextStyle(color: Color(0xFF01579B)),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.add, color: Color(0xFF01579B)),
+                            icon: Icon(
+                              Icons.add,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                             onPressed: () => setStateDialog(() => quantity++),
                           ),
                         ],
@@ -193,11 +208,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Hủy", style: TextStyle(color: Color(0xFF01579B))),
+            child: Text(
+              "Hủy",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF80DEEA),
+              backgroundColor: Theme.of(context).colorScheme.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:convert';
 import '../data/restaurant_data.dart';
 import '../data/restaurant_order_db_helper.dart';
@@ -40,12 +41,15 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           matchesFilter = true;
           break;
         case 'Món chính':
-          matchesFilter = dish['type'] != 'Tráng miệng' && dish['type'] != 'Rau củ';
+          matchesFilter =
+              dish['type'] != 'Tráng miệng' && dish['type'] != 'Rau củ';
           break;
         default:
           matchesFilter = dish['type'] == selectedFilter;
       }
-      final matchesSearch = dish['name'].toString().toLowerCase().contains(lowerSearch) || dish['desc'].toString().toLowerCase().contains(lowerSearch);
+      final matchesSearch =
+          dish['name'].toString().toLowerCase().contains(lowerSearch) ||
+          dish['desc'].toString().toLowerCase().contains(lowerSearch);
       return matchesFilter && matchesSearch;
     }).toList();
   }
@@ -71,7 +75,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         title: Text('Đặt bàn thành công'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: currentOrder.map((item) => Text('${item['restaurant']}, ${item['time']}, ${item['people']}, ${item['location']}')).toList(),
+          children: currentOrder
+              .map(
+                (item) => Text(
+                  '${item['restaurant']}, ${item['time']}, ${item['people']}, ${item['location']}',
+                ),
+              )
+              .toList(),
         ),
         actions: [
           TextButton(
@@ -145,6 +155,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     setState(() {
       orderHistory = orders;
     });
+    print('[DEBUG] Loaded ${orders.length} orders from database');
   }
 
   Future<void> _saveCurrentOrderToDb() async {
@@ -168,7 +179,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    _cardWidth = (screenWidth / 2) - 24; // Calculate width for 2 cards with padding
+    _cardWidth =
+        (screenWidth / 2) - 24; // Calculate width for 2 cards with padding
 
     return Scaffold(
       appBar: AppBar(
@@ -193,10 +205,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           ),
         ),
         child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
                   Expanded(
@@ -208,10 +220,16 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Tìm kiếm món ăn...',
-                        prefixIcon: Icon(Icons.search, color: Color(0xFF01579B)),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                        fillColor: Theme.of(context).cardColor,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -227,21 +245,30 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 children: [
                   Text(
                     'Tổng số đơn: ${orderHistory.length + (currentOrder.isNotEmpty ? 1 : 0)}',
-                    style: TextStyle(color: Color(0xFF01579B), fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => OrderHistoryScreen(
-                          orderHistory: orderHistory,
-                          onUpdate: _loadOrdersFromDb,
-                        )),
+                        MaterialPageRoute(
+                          builder: (context) => OrderHistoryScreen(
+                            orderHistory: orderHistory,
+                            onUpdate: _loadOrdersFromDb,
+                          ),
+                        ),
                       );
                     },
                     child: Text(
                       'Chi tiết đơn đặt',
-                      style: TextStyle(color: Color(0xFF0288D1), fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -251,9 +278,11 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Color(0xFFD1E8F1),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                    ],
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -263,33 +292,60 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              currentOrder.map((item) => '${item['restaurant']} x${item['quantity']}').join(', '),
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B)),
+                              currentOrder
+                                  .map(
+                                    (item) =>
+                                        '${item['restaurant']} x${item['quantity']}',
+                                  )
+                                  .join(', '),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF01579B),
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Tổng: ' + _getOrderTotalString(currentOrder),
-                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700]),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal[700],
+                              ),
                             ),
                           ],
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            if (currentOrder.isNotEmpty) {
-                              final newOrder = RestaurantOrder(
-                                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                items: List<Map<String, dynamic>>.from(currentOrder),
-                                isPaid: false,
-                              );
+                        onPressed: () async {
+                          if (currentOrder.isNotEmpty) {
+                            print(
+                              '[DEBUG] Confirming order with ${currentOrder.length} items',
+                            );
+                            final newOrder = RestaurantOrder(
+                              id: DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
+                              items: List<Map<String, dynamic>>.from(
+                                currentOrder,
+                              ),
+                              isPaid: false,
+                            );
+                            // Save to database first
+                            await RestaurantOrderDbHelper().insertOrder(
+                              newOrder,
+                            );
+                            print(
+                              '[DEBUG] Order saved to database with ID: ${newOrder.id}',
+                            );
+                            // Then update local state
+                            setState(() {
                               orderHistory.add(newOrder);
                               currentOrder.clear();
-                            }
-                          });
-                          _saveCurrentOrderToDb();
+                            });
+                            // Reload from database to ensure consistency
+                            await _loadOrdersFromDb();
+                            print('[DEBUG] Order confirmed successfully');
+                          }
                         },
                         child: Text('Xác nhận'),
                         style: ElevatedButton.styleFrom(
@@ -302,7 +358,14 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 ),
               ],
               SizedBox(height: 16),
-              Text('Ẩm thực đặc trưng', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                'Ẩm thực đặc trưng',
+                style: TextStyle(
+                  color: Color(0xFF01579B),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               SizedBox(height: 8),
               SizedBox(
                 height: 180,
@@ -310,44 +373,79 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                   controller: _scrollController,
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _specialCuisineCard(dishes.firstWhere((d) => d['name'] == 'Seafood Platter'), width: _cardWidth),
-                    _specialCuisineCard(dishes.firstWhere((d) => d['name'] == 'Vietnamese Cuisine'), width: _cardWidth),
-                    _specialCuisineCard(dishes.firstWhere((d) => d['name'] == 'Western Cuisine'), width: _cardWidth),
-                    _specialCuisineCard(dishes.firstWhere((d) => d['name'] == 'Seafood Platter'), width: _cardWidth), // Duplicate for seamless loop
+                    _specialCuisineCard(
+                      dishes.firstWhere((d) => d['name'] == 'Seafood Platter'),
+                      width: _cardWidth,
+                    ),
+                    _specialCuisineCard(
+                      dishes.firstWhere(
+                        (d) => d['name'] == 'Vietnamese Cuisine',
+                      ),
+                      width: _cardWidth,
+                    ),
+                    _specialCuisineCard(
+                      dishes.firstWhere((d) => d['name'] == 'Western Cuisine'),
+                      width: _cardWidth,
+                    ),
+                    _specialCuisineCard(
+                      dishes.firstWhere((d) => d['name'] == 'Seafood Platter'),
+                      width: _cardWidth,
+                    ), // Duplicate for seamless loop
                   ],
                 ),
               ),
               SizedBox(height: 24),
-              Text('Tất cả món', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                'Tất cả món',
+                style: TextStyle(
+                  color: Color(0xFF01579B),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: filters.map((f) => Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(f),
-                          selected: selectedFilter == f,
-                          onSelected: (_) => setState(() => selectedFilter = f),
-                            selectedColor: Color(0xFF80DEEA),
-                            labelStyle: TextStyle(color: selectedFilter == f ? Colors.white : Color(0xFF01579B)),
-                            backgroundColor: Color(0xFF80DEEA).withOpacity(0.2),
-                        ),
-                      )).toList(),
+              Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: filters
+                            .map(
+                              (f) => Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: ChoiceChip(
+                                  label: Text(f),
+                                  selected: selectedFilter == f,
+                                  onSelected: (_) =>
+                                      setState(() => selectedFilter = f),
+                                  selectedColor: Color(0xFF80DEEA),
+                                  labelStyle: TextStyle(
+                                    color: selectedFilter == f
+                                        ? Colors.white
+                                        : Color(0xFF01579B),
+                                  ),
+                                  backgroundColor: Color(
+                                    0xFF80DEEA,
+                                  ).withOpacity(0.2),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   ),
-                ),
                 ],
               ),
               SizedBox(height: 8),
               Expanded(
                 child: ListView(
                   children: filteredDishes
-                    .where((dish) => !specialCuisineImages.contains(dish['image']))
-                    .map((dish) => _dishCardVertical(dish)).toList(),
+                      .where(
+                        (dish) => !specialCuisineImages.contains(dish['image']),
+                      )
+                      .map((dish) => _dishCardVertical(dish))
+                      .toList(),
                 ),
               ),
             ],
@@ -390,24 +488,50 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dish['name'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF01579B))),
-                  SizedBox(height: 2),
-                  Row(
-                    children: List.generate(5, (i) => i < (dish['rating'] ?? 5)
-                        ? Icon(Icons.star, color: Colors.amber, size: 14)
-                        : Icon(Icons.star_border, color: Colors.amber, size: 14)),
+                  Text(
+                    dish['name'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Color(0xFF01579B),
+                    ),
                   ),
                   SizedBox(height: 2),
-                  Text(dish['price'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700], fontSize: 13)),
-                  SizedBox(height: 2),
-                  Text(dish['desc'], style: TextStyle(fontSize: 11, color: Colors.grey[700]), maxLines: 2, overflow: TextOverflow.ellipsis),
-                ],
-                              ),
+                  Row(
+                    children: List.generate(
+                      5,
+                      (i) => i < (dish['rating'] ?? 5)
+                          ? Icon(Icons.star, color: Colors.amber, size: 14)
+                          : Icon(
+                              Icons.star_border,
+                              color: Colors.amber,
+                              size: 14,
                             ),
-                          ],
-                        ),
-                      ),
-                    );
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    dish['price'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[700],
+                      fontSize: 13,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    dish['desc'],
+                    style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _dishCardVertical(Map<String, dynamic> dish) {
@@ -425,12 +549,27 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             fit: BoxFit.cover,
           ),
         ),
-        title: Text(dish['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+        title: Text(
+          dish['name'],
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF01579B),
+          ),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(dish['price'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700])),
-            Text(dish['desc'], style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+            Text(
+              dish['price'],
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.teal[700],
+              ),
+            ),
+            Text(
+              dish['desc'],
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+            ),
           ],
         ),
         isThreeLine: true,
@@ -439,7 +578,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             setState(() {
               currentOrder.add(orderItem);
             });
-            _saveCurrentOrderToDb();
+            // Don't save to database yet - wait for user to confirm the order
           }),
           child: Text('Thêm'),
           style: ElevatedButton.styleFrom(
@@ -453,45 +592,80 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     );
   }
 
-  void _showAddToOrderDialog(Map<String, dynamic> dish, void Function(Map<String, dynamic>) onOrderAdd) {
+  void _showAddToOrderDialog(
+    Map<String, dynamic> dish,
+    void Function(Map<String, dynamic>) onOrderAdd,
+  ) {
     int quantity = 1;
-    int unitPrice = int.tryParse(dish['price'].replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    int unitPrice =
+        int.tryParse(dish['price'].replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           int totalPrice = unitPrice * quantity;
-          String totalPriceStr = totalPrice.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+          String totalPriceStr = totalPrice.toString().replaceAllMapped(
+            RegExp(r'\B(?=(\d{3})+(?!\d))'),
+            (match) => '.',
+          );
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text('Thêm vào đơn', style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              'Thêm vào đơn',
+              style: TextStyle(
+                color: Color(0xFF01579B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             content: Container(
               width: MediaQuery.of(context).size.width * 0.7,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.3,
               ),
               child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dish['name'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    dish['name'],
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
+                    children: [
+                      IconButton(
                         icon: Icon(Icons.remove),
-                        onPressed: quantity > 1 ? () => setState(() => quantity--) : null,
-                                ),
-                      Text('$quantity', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                IconButton(
+                        onPressed: quantity > 1
+                            ? () => setState(() => quantity--)
+                            : null,
+                      ),
+                      Text(
+                        '$quantity',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
                         icon: Icon(Icons.add),
-                        onPressed: quantity < 20 ? () => setState(() => quantity++) : null,
-                                ),
-                              ],
-                            ),
+                        onPressed: quantity < 20
+                            ? () => setState(() => quantity++)
+                            : null,
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 12),
-                  Text('Tổng: $totalPriceStr VNĐ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700], fontSize: 16)),
+                  Text(
+                    'Tổng: $totalPriceStr VNĐ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[700],
+                      fontSize: 16,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -500,7 +674,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 onPressed: () => Navigator.pop(context),
                 child: Text('Hủy'),
               ),
-                ElevatedButton(
+              ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                   onOrderAdd({
@@ -514,10 +688,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                   });
                   print('[DEBUG] Order added: ${dish['name']} x$quantity');
                 },
-                  child: Text('Xác nhận'),
-                  style: ElevatedButton.styleFrom(
+                child: Text('Xác nhận'),
+                style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF80DEEA),
-                    foregroundColor: Colors.white,
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],
@@ -532,7 +706,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(dish['name'], style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+        title: Text(
+          dish['name'],
+          style: TextStyle(
+            color: Color(0xFF01579B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.8,
           constraints: BoxConstraints(
@@ -553,12 +733,26 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 ),
                 SizedBox(height: 12),
                 Row(
-                  children: List.generate(5, (i) => i < (dish['rating'] ?? 5)
-                      ? Icon(Icons.star, color: Colors.amber, size: 18)
-                      : Icon(Icons.star_border, color: Colors.amber, size: 18)),
+                  children: List.generate(
+                    5,
+                    (i) => i < (dish['rating'] ?? 5)
+                        ? Icon(Icons.star, color: Colors.amber, size: 18)
+                        : Icon(
+                            Icons.star_border,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                  ),
                 ),
                 SizedBox(height: 8),
-                Text(dish['price'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700], fontSize: 16)),
+                Text(
+                  dish['price'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal[700],
+                    fontSize: 16,
+                  ),
+                ),
                 SizedBox(height: 8),
                 Text(dish['desc'], style: TextStyle(fontSize: 14)),
               ],
@@ -570,15 +764,15 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text('Đóng'),
           ),
-                ElevatedButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _showBookDishForm(dish);
             },
             child: Text('Đặt món ngay'),
-                  style: ElevatedButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF80DEEA),
-                    foregroundColor: Colors.white,
+              foregroundColor: Colors.white,
             ),
           ),
         ],
@@ -594,8 +788,16 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('Đặt món: ${dish['name']}', style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'Đặt món: ${dish['name']}',
+            style: TextStyle(
+              color: Color(0xFF01579B),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
             constraints: BoxConstraints(
@@ -608,11 +810,16 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 children: [
                   Row(
                     children: [
-                      Text('Số khách: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'Số khách: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       SizedBox(width: 8),
                       IconButton(
                         icon: Icon(Icons.remove),
-                        onPressed: guests > 1 ? () => setState(() => guests--) : null,
+                        onPressed: guests > 1
+                            ? () => setState(() => guests--)
+                            : null,
                       ),
                       Text('$guests', style: TextStyle(fontSize: 16)),
                       IconButton(
@@ -689,11 +896,18 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   String _getOrderTotalString(List<Map<String, dynamic>> orderList) {
     int total = 0;
     for (final item in orderList) {
-      final price = int.tryParse(item['price']?.replaceAll(RegExp(r'[^0-9]'), '') ?? '0') ?? 0;
+      final price =
+          int.tryParse(
+            item['price']?.replaceAll(RegExp(r'[^0-9]'), '') ?? '0',
+          ) ??
+          0;
       final qty = item['quantity'] ?? 1;
       total += (price * qty).toInt();
     }
-    final totalStr = total.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
+    final totalStr = total.toString().replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (match) => '.',
+    );
     return '$totalStr VNĐ';
   }
 
@@ -702,11 +916,19 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     if (currentOrder.isNotEmpty) {
       result.add(currentOrder);
     }
-    
-    final history = orderHistory.reversed.take(3 - result.length).toList().reversed.toList();
-    
-    result.addAll(history.map((orderData) => List<Map<String, dynamic>>.from(orderData.items)));
-    
+
+    final history = orderHistory.reversed
+        .take(3 - result.length)
+        .toList()
+        .reversed
+        .toList();
+
+    result.addAll(
+      history.map(
+        (orderData) => List<Map<String, dynamic>>.from(orderData.items),
+      ),
+    );
+
     return result;
   }
 
@@ -719,12 +941,21 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     }
   }
 
-  void _showOrderDetailDialog(List<Map<String, dynamic>> orderList, bool isCurrent) {
+  void _showOrderDetailDialog(
+    List<Map<String, dynamic>> orderList,
+    bool isCurrent,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Chi tiết đơn đặt', style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+        title: Text(
+          'Chi tiết đơn đặt',
+          style: TextStyle(
+            color: Color(0xFF01579B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.85,
           constraints: BoxConstraints(
@@ -735,10 +966,15 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ...orderList.map((item) {
-                  final dish = dishes.firstWhere((d) => d['name'] == item['restaurant'], orElse: () => <String, dynamic>{});
+                  final dish = dishes.firstWhere(
+                    (d) => d['name'] == item['restaurant'],
+                    orElse: () => <String, dynamic>{},
+                  );
                   return Card(
                     color: Color(0xFFD1E8F1),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     margin: EdgeInsets.only(bottom: 10),
                     child: ListTile(
                       leading: dish.isNotEmpty
@@ -752,8 +988,23 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                               ),
                             )
                           : null,
-                      title: Text(item['restaurant'] + (item['quantity'] != null ? ' x${item['quantity']}' : ''), style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
-                      subtitle: Text(item['total'] ?? '', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700])),
+                      title: Text(
+                        item['restaurant'] +
+                            (item['quantity'] != null
+                                ? ' x${item['quantity']}'
+                                : ''),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF01579B),
+                        ),
+                      ),
+                      subtitle: Text(
+                        item['total'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal[700],
+                        ),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -762,8 +1013,21 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Tổng cộng:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(_getOrderTotalString(orderList), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700], fontSize: 16)),
+                    Text(
+                      'Tổng cộng:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      _getOrderTotalString(orderList),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal[700],
+                        fontSize: 16,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -777,18 +1041,23 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           ),
           if (isCurrent)
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (currentOrder.isNotEmpty) {
-                    final newOrder = RestaurantOrder(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      items: List<Map<String, dynamic>>.from(currentOrder),
-                      isPaid: false,
-                    );
+              onPressed: () async {
+                if (currentOrder.isNotEmpty) {
+                  final newOrder = RestaurantOrder(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    items: List<Map<String, dynamic>>.from(currentOrder),
+                    isPaid: false,
+                  );
+                  // Save to database first
+                  await RestaurantOrderDbHelper().insertOrder(newOrder);
+                  // Then update local state
+                  setState(() {
                     orderHistory.add(newOrder);
                     currentOrder.clear();
-                  }
-                });
+                  });
+                  // Reload from database to ensure consistency
+                  await _loadOrdersFromDb();
+                }
                 Navigator.pop(context);
               },
               child: Text('Xác nhận'),
@@ -802,7 +1071,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     );
   }
 
-  Widget _specialCuisineCard(Map<String, dynamic> dish, {required double width}) {
+  Widget _specialCuisineCard(
+    Map<String, dynamic> dish, {
+    required double width,
+  }) {
     return GestureDetector(
       onTap: () => _showSpecialCuisineDetail(dish),
       child: Container(
@@ -834,15 +1106,34 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(dish['name'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF01579B))),
-                  SizedBox(height: 4),
-                  Row(
-                    children: List.generate(5, (i) => i < (dish['rating'] ?? 5)
-                        ? Icon(Icons.star, color: Colors.amber, size: 16)
-                        : Icon(Icons.star_border, color: Colors.amber, size: 16)),
+                  Text(
+                    dish['name'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color(0xFF01579B),
+                    ),
                   ),
                   SizedBox(height: 4),
-                  Text(dish['desc'], style: TextStyle(fontSize: 12, color: Colors.grey[700]), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Row(
+                    children: List.generate(
+                      5,
+                      (i) => i < (dish['rating'] ?? 5)
+                          ? Icon(Icons.star, color: Colors.amber, size: 16)
+                          : Icon(
+                              Icons.star_border,
+                              color: Colors.amber,
+                              size: 16,
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    dish['desc'],
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -857,7 +1148,13 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(dish['name'], style: TextStyle(color: Color(0xFF01579B), fontWeight: FontWeight.bold)),
+        title: Text(
+          dish['name'],
+          style: TextStyle(
+            color: Color(0xFF01579B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.7,
           child: Column(
@@ -874,7 +1171,10 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 ),
               ),
               SizedBox(height: 12),
-              Text(cuisineInfo[dish['name']] ?? dish['desc'], style: TextStyle(fontSize: 14)),
+              Text(
+                cuisineInfo[dish['name']] ?? dish['desc'],
+                style: TextStyle(fontSize: 14),
+              ),
             ],
           ),
         ),
@@ -900,9 +1200,9 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   }
 
   void _downloadMenuPDF(String pdfPath) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Mở file PDF: $pdfPath')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Mở file PDF: $pdfPath')));
   }
 }
 
@@ -910,7 +1210,11 @@ class OrderHistoryScreen extends StatefulWidget {
   final List<RestaurantOrder> orderHistory;
   final Function onUpdate;
 
-  const OrderHistoryScreen({Key? key, required this.orderHistory, required this.onUpdate}) : super(key: key);
+  const OrderHistoryScreen({
+    Key? key,
+    required this.orderHistory,
+    required this.onUpdate,
+  }) : super(key: key);
 
   @override
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
@@ -943,25 +1247,42 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: widget.orderHistory.isEmpty
-              ? Center(child: Text('Chưa có đơn nào.', style: TextStyle(color: Color(0xFF01579B))))
+              ? Center(
+                  child: Text(
+                    'Chưa có đơn nào.',
+                    style: TextStyle(color: Color(0xFF01579B)),
+                  ),
+                )
               : ListView.builder(
                   itemCount: widget.orderHistory.length,
                   itemBuilder: (context, i) {
                     final orderData = widget.orderHistory[i];
-                    final orderItems = List<Map<String, dynamic>>.from(orderData.items);
+                    final orderItems = List<Map<String, dynamic>>.from(
+                      orderData.items,
+                    );
                     final isPaid = orderData.isPaid;
-                    
+
                     int total = 0;
                     for (final item in orderItems) {
-                      final price = int.tryParse(item['price']?.replaceAll(RegExp(r'[^0-9]'), '') ?? '0') ?? 0;
+                      final price =
+                          int.tryParse(
+                            item['price']?.replaceAll(RegExp(r'[^0-9]'), '') ??
+                                '0',
+                          ) ??
+                          0;
                       final qty = item['quantity'] ?? 1;
                       total += (price * qty).toInt();
                     }
-                    final totalStr = total.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.');
-                    
+                    final totalStr = total.toString().replaceAllMapped(
+                      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                      (match) => '.',
+                    );
+
                     return Card(
                       color: Color(0xFFD1E8F1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       margin: EdgeInsets.only(bottom: 16),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -971,24 +1292,49 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Đơn ${i + 1}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF01579B))),
+                                Text(
+                                  'Đơn ${i + 1}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Color(0xFF01579B),
+                                  ),
+                                ),
                                 Row(
                                   children: [
                                     Text(
-                                      isPaid ? 'Đã thanh toán' : 'Chưa thanh toán',
+                                      isPaid
+                                          ? 'Đã thanh toán'
+                                          : 'Chưa thanh toán',
                                       style: TextStyle(
-                                        color: isPaid ? Colors.green : Colors.orange,
+                                        color: isPaid
+                                            ? Colors.green
+                                            : Colors.orange,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     if (isPaid)
                                       IconButton(
-                                        icon: Icon(Icons.delete_outline, color: Colors.red[700]),
-                                        onPressed: () {
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.red[700],
+                                        ),
+                                        onPressed: () async {
+                                          print(
+                                            '[DEBUG] Deleting order ${orderData.id}',
+                                          );
+                                          // Delete from database first
+                                          await RestaurantOrderDbHelper()
+                                              .deleteOrder(orderData.id);
+                                          // Then remove from local list
                                           setState(() {
                                             widget.orderHistory.removeAt(i);
                                           });
+                                          // Update the parent screen
                                           widget.onUpdate();
+                                          print(
+                                            '[DEBUG] Order deleted successfully',
+                                          );
                                         },
                                       ),
                                   ],
@@ -996,18 +1342,39 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               ],
                             ),
                             SizedBox(height: 8),
-                            ...orderItems.map((item) => Row(
-                                  children: [
-                                    Expanded(child: Text('${item['restaurant']} x${item['quantity']}')),
-                                    Text(item['total'] ?? '', style: TextStyle(color: Colors.teal[700], fontWeight: FontWeight.bold)),
-                                  ],
-                                )),
+                            ...orderItems.map(
+                              (item) => Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${item['restaurant']} x${item['quantity']}',
+                                    ),
+                                  ),
+                                  Text(
+                                    item['total'] ?? '',
+                                    style: TextStyle(
+                                      color: Colors.teal[700],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Divider(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Tổng cộng:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text('$totalStr VNĐ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal[700])),
+                                Text(
+                                  'Tổng cộng:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '$totalStr VNĐ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal[700],
+                                  ),
+                                ),
                               ],
                             ),
                             if (!isPaid) ...[
@@ -1015,11 +1382,22 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    print(
+                                      '[DEBUG] Marking order ${orderData.id} as paid',
+                                    );
+                                    // Update database first
+                                    await RestaurantOrderDbHelper()
+                                        .updateOrderStatus(orderData.id, true);
+                                    // Then update local state
                                     setState(() {
                                       widget.orderHistory[i].isPaid = true;
                                     });
-                                    widget.onUpdate(); // This calls _saveOrdersToPrefs
+                                    // Update the parent screen
+                                    widget.onUpdate();
+                                    print(
+                                      '[DEBUG] Order marked as paid successfully',
+                                    );
                                   },
                                   child: Text('Xác nhận thanh toán'),
                                   style: ElevatedButton.styleFrom(
@@ -1039,4 +1417,4 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       ),
     );
   }
-} 
+}

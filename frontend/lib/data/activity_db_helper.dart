@@ -52,7 +52,11 @@ class ActivityDbHelper {
 
   Future<int> insertActivity(Activity activity) async {
     final dbClient = await db;
-    return await dbClient.insert('activities', activity.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return await dbClient.insert(
+      'activities',
+      activity.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<Activity>> getAllActivities() async {
@@ -63,12 +67,21 @@ class ActivityDbHelper {
 
   Future<int> updateActivity(Activity activity) async {
     final dbClient = await db;
-    return await dbClient.update('activities', activity.toMap(), where: 'id = ?', whereArgs: [activity.id]);
+    return await dbClient.update(
+      'activities',
+      activity.toMap(),
+      where: 'id = ?',
+      whereArgs: [activity.id],
+    );
   }
 
   Future<int> deleteActivity(int id) async {
     final dbClient = await db;
-    return await dbClient.delete('activities', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete(
+      'activities',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // Booking logic
@@ -93,11 +106,25 @@ class ActivityDbHelper {
 
   Future<List<Map<String, dynamic>>> getBookingsByUser(String userEmail) async {
     final dbClient = await db;
-    return await dbClient.query('activity_bookings', where: 'user_email = ?', whereArgs: [userEmail]);
+    return await dbClient.query(
+      'activity_bookings',
+      where: 'user_email = ?',
+      whereArgs: [userEmail],
+    );
   }
 
   Future<int> cancelBooking(int bookingId) async {
     final dbClient = await db;
-    return await dbClient.update('activity_bookings', {'status': 'cancelled'}, where: 'id = ?', whereArgs: [bookingId]);
+    return await dbClient.update(
+      'activity_bookings',
+      {'status': 'cancelled'},
+      where: 'id = ?',
+      whereArgs: [bookingId],
+    );
   }
-} 
+
+  Future<int> deleteAllBookings() async {
+    final dbClient = await db;
+    return await dbClient.delete('activity_bookings');
+  }
+}

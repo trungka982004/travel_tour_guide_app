@@ -18,25 +18,17 @@ class ResortApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Carmelina Resort App',
       theme: ThemeData(
-        fontFamily: 'Roboto',
-        primaryColor: Color(0xFF1976D2),
-        scaffoldBackgroundColor: Color(0xFFF5F7FA),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          primary: Color(0xFF1976D2),
-          secondary: Color(0xFFF5F7FA),
-        ),
+        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        cardColor: Colors.white,
         textTheme: TextTheme(
-          titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1976D2)),
-          bodyMedium: TextStyle(fontSize: 14),
+          bodyLarge: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(color: Colors.black87),
         ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        colorScheme: ColorScheme.light(
+          primary: Color(0xFF01579B),
+          secondary: Color(0xFF80DEEA),
         ),
       ),
       home: AppEntryPoint(),
@@ -70,9 +62,7 @@ class _AppEntryPointState extends State<AppEntryPoint> {
   @override
   Widget build(BuildContext context) {
     if (_isLoggedIn == null) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return _isLoggedIn! ? ResortMainShell() : LoginScreen();
   }
@@ -85,12 +75,7 @@ class ResortMainShell extends StatefulWidget {
 
 class _ResortMainShellState extends State<ResortMainShell> {
   int _selectedIndex = 0;
-  final List<String> _titles = [
-    'Home',
-    'Explore',
-    'Bookings',
-    'Profile',
-  ];
+  final List<String> _titles = ['Home', 'Explore', 'Bookings', 'Settings'];
 
   void _onTabChange(int i) {
     setState(() {
@@ -126,7 +111,13 @@ class _ResortMainShellState extends State<ResortMainShell> {
             colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
           ),
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -2))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
         ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -138,10 +129,22 @@ class _ResortMainShellState extends State<ResortMainShell> {
           unselectedItemColor: Color(0xFF455A64),
           showUnselectedLabels: true,
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.explore_rounded), label: 'Explore'),
-            BottomNavigationBarItem(icon: Icon(Icons.book_online_rounded), label: 'Bookings'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.explore_rounded),
+              label: 'Explore',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.book_online_rounded),
+              label: 'Bookings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Settings',
+            ),
           ],
         ),
       ),

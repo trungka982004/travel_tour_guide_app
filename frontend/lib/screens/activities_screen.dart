@@ -4,6 +4,7 @@ import '../data/activity_data.dart';
 import '../data/activity_db_helper.dart';
 import 'package:intl/intl.dart';
 import '../models/activity_booking.dart';
+
 import 'dart:ui'; // Add this import at the top
 
 class ActivitiesScreen extends StatefulWidget {
@@ -410,7 +411,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF01579B),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               if (_displayedActivities.length > 8)
@@ -425,7 +426,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                     child: Text(
                       _showAll ? 'Thu gọn' : 'Xem thêm',
                       style: TextStyle(
-                        color: Color(0xFF01579B),
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -436,7 +437,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           SizedBox(height: 4),
           Text(
             'Khám phá các trải nghiệm tuyệt vời dành cho mọi lứa tuổi tại Carmelina!',
-            style: TextStyle(fontSize: 16, color: Color(0xFF455A64)),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
           ),
         ],
       ),
@@ -453,7 +457,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Color(0xFFD1E8F1),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
               ),
@@ -461,7 +465,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm hoạt động...',
                   border: InputBorder.none,
-                  icon: Icon(Icons.search, color: Color(0xFF01579B)),
+                  icon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 onChanged: (val) {
                   setState(() {
@@ -472,7 +479,10 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.filter_alt, color: Color(0xFF01579B)),
+            icon: Icon(
+              Icons.filter_alt,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             tooltip: 'Bộ lọc',
             onPressed: () {
               showModalBottomSheet(
@@ -888,7 +898,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Color(0xFFD1E8F1),
+      color: Theme.of(context).cardColor,
       child: InkWell(
         onTap: () {
           showDialog(
@@ -918,18 +928,25 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF01579B),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
                       activity.time,
-                      style: TextStyle(fontSize: 14, color: Color(0xFF455A64)),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, size: 20, color: Color(0xFF01579B)),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ],
           ),
         ),
@@ -972,13 +989,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF01579B),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   activity.description,
-                  style: TextStyle(fontSize: 15, color: Color(0xFF455A64)),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
                 ),
                 SizedBox(height: 8),
                 Row(

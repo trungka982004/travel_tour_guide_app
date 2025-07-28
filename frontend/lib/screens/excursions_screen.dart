@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:convert';
 import '../data/excursion_db_helper.dart';
 import '../models/excursion_booking.dart';
 import '../data/user_db_helper.dart';
 import '../models/user.dart';
+
 
 class ExcursionsScreen extends StatefulWidget {
   @override
@@ -19,7 +21,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Khám phá vẻ đẹp hoang sơ của đảo Hòn Một và ngôi chùa.',
       'image': 'assets/excursions/hon-mot.png',
       'distance': 'Khoảng cách 25 km',
-      'details': 'Ghé thăm chùa Hòn Một, linh hồn của Hồ Tràm, nơi có khung cảnh bình dị làm nổi bật những ngôi đền, các bức tượng và vườn cây cảnh đẹp mắt. Vì chùa nằm ở vị trí thuận tiện cách Phủ Thạch Hầu chỉ 5 phút, nên khách du lịch có thể tham gia tour quanh Núi Minh Đàm và khám phá tất cả những địa điểm này trong vòng một ngày.',
+      'details':
+          'Ghé thăm chùa Hòn Một, linh hồn của Hồ Tràm, nơi có khung cảnh bình dị làm nổi bật những ngôi đền, các bức tượng và vườn cây cảnh đẹp mắt. Vì chùa nằm ở vị trí thuận tiện cách Phủ Thạch Hầu chỉ 5 phút, nên khách du lịch có thể tham gia tour quanh Núi Minh Đàm và khám phá tất cả những địa điểm này trong vòng một ngày.',
       'rating': 5,
     },
     {
@@ -28,7 +31,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Dạo bước giữa thiên nhiên đa dạng tại khu bảo tồn.',
       'image': 'assets/excursions/phuc-buu.png',
       'distance': 'Khoảng cách 6 km',
-      'details': 'Chỉ cách Khu Nghỉ Dưỡng 9 phút đi xe, Khu bảo tồn thiên nhiên Bình Châu – Phước Bửu tự hào là một trong những khu rừng nguyên sinh ven biển duy nhất còn sót lại ở Việt Nam với diện tích hơn 10.000 hecta và là nơi quy tụ hệ thực vật phong phú cùng một số loài động vật quý hiếm.',
+      'details':
+          'Chỉ cách Khu Nghỉ Dưỡng 9 phút đi xe, Khu bảo tồn thiên nhiên Bình Châu – Phước Bửu tự hào là một trong những khu rừng nguyên sinh ven biển duy nhất còn sót lại ở Việt Nam với diện tích hơn 10.000 hecta và là nơi quy tụ hệ thực vật phong phú cùng một số loài động vật quý hiếm.',
       'rating': 4,
     },
     {
@@ -37,7 +41,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Thư giãn tại suối nước nóng và tắm bùn khoáng.',
       'image': 'assets/excursions/binh-chau.png',
       'distance': 'Khoảng cách 20 km',
-      'details': 'Nằm cách Carmelina 25 phút lái xe ven biển về phía Bắc là Suối nước nóng Bình Châu, nổi tiếng với khu phức hợp bể bơi nước nóng và tắm bùn. Người ta tin rằng dòng nước suối nóng ở 37 ° C với hàm lượng khoáng chất cao có thể cải thiện lưu thông máu, thư giãn cơ bắp và làm dịu các dây thần kinh của bạn.',
+      'details':
+          'Nằm cách Carmelina 25 phút lái xe ven biển về phía Bắc là Suối nước nóng Bình Châu, nổi tiếng với khu phức hợp bể bơi nước nóng và tắm bùn. Người ta tin rằng dòng nước suối nóng ở 37 ° C với hàm lượng khoáng chất cao có thể cải thiện lưu thông máu, thư giãn cơ bắp và làm dịu các dây thần kinh của bạn.',
       'rating': 5,
     },
     {
@@ -46,7 +51,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Leo núi, khám phá hang động và rừng xanh.',
       'image': 'assets/excursions/minh-dam.png',
       'distance': 'Khoảng cách 33 km',
-      'details': 'Ngọn núi Minh Đạm nằm cách Carmelina Beach Resort 45 phút di chuyển, là một địa điểm lịch sử, căn cứ du kích trong thời chiến (1933 – 1975). Du khách có thể khám phá hệ thống hang động phức tạp, đan xen là những hồ nước tự nhiên mát lạnh hoặc đi dạo qua những khu rừng xanh mát và ngắm nhìn những chú khỉ tinh nghịch đu qua lại trên những tán cây cao phía trên.',
+      'details':
+          'Ngọn núi Minh Đạm nằm cách Carmelina Beach Resort 45 phút di chuyển, là một địa điểm lịch sử, căn cứ du kích trong thời chiến (1933 – 1975). Du khách có thể khám phá hệ thống hang động phức tạp, đan xen là những hồ nước tự nhiên mát lạnh hoặc đi dạo qua những khu rừng xanh mát và ngắm nhìn những chú khỉ tinh nghịch đu qua lại trên những tán cây cao phía trên.',
       'rating': 4,
     },
     {
@@ -55,7 +61,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Gặp gỡ khỉ hoang dã và tận hưởng cảnh núi rừng.',
       'image': 'assets/excursions/monkey-moutaint.png',
       'distance': 'Khoảng cách 25 km',
-      'details': 'Nằm dưới chân núi Minh Đàm, Phủ Thạch Hầu – ban đầu được gọi là Tu viện Trúc Lâm Chân Nguyên – là một ngôi chùa cổ duyên dáng được bao quanh bởi quang cảnh núi non tuyệt đẹp và khu rừng rộng lớn. Tại đây, bạn có thể chiêm ngưỡng từng nhóm hàng trăm chú khỉ quanh khu vực này như một nét độc đáo của tu viện.',
+      'details':
+          'Nằm dưới chân núi Minh Đàm, Phủ Thạch Hầu – ban đầu được gọi là Tu viện Trúc Lâm Chân Nguyên – là một ngôi chùa cổ duyên dáng được bao quanh bởi quang cảnh núi non tuyệt đẹp và khu rừng rộng lớn. Tại đây, bạn có thể chiêm ngưỡng từng nhóm hàng trăm chú khỉ quanh khu vực này như một nét độc đáo của tu viện.',
       'rating': 5,
     },
     {
@@ -64,7 +71,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       'desc': 'Trải nghiệm thành phố biển sôi động và các bãi tắm nổi tiếng.',
       'image': 'assets/excursions/vung-tau-city.jpg',
       'distance': 'Khoảng cách 44 km',
-      'details': 'Cách khu nghỉ dưỡng chưa đầy một giờ lái xe, Vũng Tàu là một thành phố nhộn nhịp cung cấp nhiều hoạt động cả ngày lẫn đêm. Bên cạnh đó, thành phố còn có những điểm tham quan nổi bật như: Tượng đài Chúa Kitô, Bạch Dinh, Hòn Bà, Hải đăng và tượng Phật Thích Ca Mâu Ni (Thích Ca Phật Đài). Carmelina cũng cung cấp phương tiện đi lại giúp bạn di chuyển thuận tiện từ khu nghỉ dưỡng đến Vũng Tàu.',
+      'details':
+          'Cách khu nghỉ dưỡng chưa đầy một giờ lái xe, Vũng Tàu là một thành phố nhộn nhịp cung cấp nhiều hoạt động cả ngày lẫn đêm. Bên cạnh đó, thành phố còn có những điểm tham quan nổi bật như: Tượng đài Chúa Kitô, Bạch Dinh, Hòn Bà, Hải đăng và tượng Phật Thích Ca Mâu Ni (Thích Ca Phật Đài). Carmelina cũng cung cấp phương tiện đi lại giúp bạn di chuyển thuận tiện từ khu nghỉ dưỡng đến Vũng Tàu.',
       'rating': 3,
     },
   ];
@@ -100,14 +108,16 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     final dbHelper = ExcursionDbHelper();
     final bookingMaps = await dbHelper.getBookingsByUser(currentUserEmail);
     setState(() {
-      bookings = bookingMaps.map((map) => ExcursionBooking.fromMap(map)).toList();
+      bookings = bookingMaps
+          .map((map) => ExcursionBooking.fromMap(map))
+          .toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE0F7FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('Excursions', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
@@ -126,7 +136,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+                          colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
           ),
         ),
         child: SingleChildScrollView(
@@ -135,33 +145,66 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
             children: [
               if (bookings.isNotEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-                  child: Text('Tour đã đặt', style: TextStyle(color: Color(0xFF01579B), fontSize: 18, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 12,
+                  ),
+                  child: Text(
+                    'Tour đã đặt',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Card(
-                    color: Color(0xFFD1E8F1),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    color: Theme.of(context).cardColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     margin: EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
-                      title: Text(_getExcursionTitleById(bookings.last.excursionId), style: TextStyle(color: Color(0xFF01579B))),
+                      leading: Icon(
+                        Icons.event_available,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(
+                        _getExcursionTitleById(bookings.last.excursionId),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                       subtitle: Text(
-                        'Tên: ${bookings.last.userName}\nEmail: ${bookings.last.userEmail}\nNgày: ${bookings.last.bookingDate.isNotEmpty ? _formatDate(bookings.last.bookingDate) : ''}\nKhách: ${bookings.last.numberOfPeople}\nDịch vụ: ${bookings.last.status}'
+                        'Tên: ${bookings.last.userName}\nEmail: ${bookings.last.userEmail}\nNgày: ${bookings.last.bookingDate.isNotEmpty ? _formatDate(bookings.last.bookingDate) : ''}\nKhách: ${bookings.last.numberOfPeople}\nDịch vụ: ${bookings.last.status}',
                       ),
                     ),
                   ),
                 ),
                 if (bookings.length > 1) ...[
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 8,
+                    ),
                     child: GestureDetector(
                       onTap: () => _showHistoryDialog(context),
                       child: Row(
                         children: [
-                          Text('Lịch sử đơn', style: TextStyle(color: Color(0xFF01579B), fontSize: 16, fontWeight: FontWeight.bold)),
-                          Icon(Icons.history, color: Color(0xFF01579B)),
+                          Text(
+                            'Lịch sử đơn',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(
+                            Icons.history,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ],
                       ),
                     ),
@@ -172,7 +215,14 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
               // Top Recommendation (Horizontal Scroll)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text('Top Recommendation', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Top Recommendation',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               SizedBox(height: 12),
               Container(
@@ -180,14 +230,31 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  children: excursions.take(3).map((e) => _excursionCard(context, e, featured: true, showStars: true)).toList(),
+                  children: excursions
+                      .take(3)
+                      .map(
+                        (e) => _excursionCard(
+                          context,
+                          e,
+                          featured: true,
+                          showStars: true,
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
               SizedBox(height: 24),
               // All Excursions (Grid)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text('All Excursions', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'All Excursions',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               SizedBox(height: 12),
               Padding(
@@ -199,7 +266,9 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.85,
-                  children: excursions.map((e) => _excursionCard(context, e)).toList(),
+                  children: excursions
+                      .map((e) => _excursionCard(context, e))
+                      .toList(),
                 ),
               ),
               SizedBox(height: 32),
@@ -210,7 +279,12 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     );
   }
 
-  Widget _excursionCard(BuildContext context, Map<String, dynamic> e, {bool featured = false, bool showStars = false}) {
+  Widget _excursionCard(
+    BuildContext context,
+    Map<String, dynamic> e, {
+    bool featured = false,
+    bool showStars = false,
+  }) {
     return GestureDetector(
       onTap: () => _showDetails(context, e),
       child: Container(
@@ -227,7 +301,10 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
           image: DecorationImage(
             image: AssetImage(e['image']!),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.18), BlendMode.darken),
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.18),
+              BlendMode.darken,
+            ),
           ),
         ),
         child: Container(
@@ -244,15 +321,39 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(e['title']!, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: featured ? 20 : 16, shadows: [Shadow(color: Colors.black26, blurRadius: 4)])),
+              Text(
+                e['title']!,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: featured ? 20 : 16,
+                  shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+                ),
+              ),
               if (showStars) ...[
                 SizedBox(height: 4),
                 Row(
-                  children: List.generate(5, (i) => i < (e['rating'] ?? 5) ? Icon(Icons.star, color: Colors.amber, size: 18) : Icon(Icons.star_border, color: Colors.amber, size: 18)),
+                  children: List.generate(
+                    5,
+                    (i) => i < (e['rating'] ?? 5)
+                        ? Icon(Icons.star, color: Colors.amber, size: 18)
+                        : Icon(
+                            Icons.star_border,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                  ),
                 ),
               ],
               SizedBox(height: 6),
-              Text(e['desc']!, style: TextStyle(color: Colors.white, fontSize: featured ? 14 : 12, shadows: [Shadow(color: Colors.black26, blurRadius: 4)])),
+              Text(
+                e['desc']!,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: featured ? 14 : 12,
+                  shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+                ),
+              ),
             ],
           ),
         ),
@@ -299,7 +400,10 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                               gradient: LinearGradient(
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
-                                colors: [Colors.black.withOpacity(0.10), Colors.transparent],
+                                colors: [
+                                  Colors.black.withOpacity(0.10),
+                                  Colors.transparent,
+                                ],
                               ),
                             ),
                           ),
@@ -313,17 +417,28 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                   children: [
                     Icon(Icons.place, color: Color(0xFF80DEEA)),
                     SizedBox(width: 6),
-                    Text(excursion['distance'] as String? ?? '', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF80DEEA))),
+                    Text(
+                      excursion['distance'] as String? ?? '',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF80DEEA),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Text(
                   excursion['title'] as String,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF01579B)),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF01579B),
+                  ),
                 ),
                 SizedBox(height: 8),
                 Text(
-                  excursion['details'] as String? ?? excursion['desc'] as String,
+                  excursion['details'] as String? ??
+                      excursion['desc'] as String,
                   style: TextStyle(fontSize: 15),
                 ),
                 SizedBox(height: 20),
@@ -334,7 +449,13 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text('Close', style: TextStyle(color: Color(0xFF80DEEA), fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'Close',
+                          style: TextStyle(
+                            color: Color(0xFF80DEEA),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       SizedBox(width: 8),
                       ElevatedButton(
@@ -346,7 +467,9 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF80DEEA),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ],
@@ -375,7 +498,12 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     DateTime? selectedDate;
     int guests = 1;
     List<String> extraServices = [];
-    final List<String> allServices = ['Chăm sóc sức khỏe', 'Hướng dẫn viên', 'Đưa đón', 'Bữa ăn'];
+    final List<String> allServices = [
+      'Chăm sóc sức khỏe',
+      'Hướng dẫn viên',
+      'Đưa đón',
+      'Bữa ăn',
+    ];
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -384,7 +512,9 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
       ),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: StatefulBuilder(
             builder: (context, setStateSheet) => Padding(
               padding: const EdgeInsets.all(20.0),
@@ -403,9 +533,19 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                       ),
                     ),
                   ),
-                  Text('Đặt tour', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+                  Text(
+                    'Đặt tour',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF01579B),
+                    ),
+                  ),
                   SizedBox(height: 12),
-                  Text('Tên tour: ${excursion['title']}', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Tên tour: ${excursion['title']}',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   SizedBox(height: 8),
                   Row(
                     children: [
@@ -413,8 +553,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                       SizedBox(width: 8),
                       Text(
                         selectedDate == null
-                          ? 'Chọn ngày bắt đầu'
-                          : 'Ngày: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                            ? 'Chọn ngày bắt đầu'
+                            : 'Ngày: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
                       ),
                       SizedBox(width: 8),
                       ElevatedButton(
@@ -425,7 +565,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime.now().add(Duration(days: 365)),
                           );
-                          if (picked != null) setStateSheet(() => selectedDate = picked);
+                          if (picked != null)
+                            setStateSheet(() => selectedDate = picked);
                         },
                         child: Text('Chọn'),
                         style: ElevatedButton.styleFrom(
@@ -445,9 +586,14 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                       SizedBox(width: 8),
                       IconButton(
                         icon: Icon(Icons.remove),
-                        onPressed: guests > 1 ? () => setStateSheet(() => guests--) : null,
+                        onPressed: guests > 1
+                            ? () => setStateSheet(() => guests--)
+                            : null,
                       ),
-                      Text('	$guests', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        '	$guests',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       IconButton(
                         icon: Icon(Icons.add),
                         onPressed: () => setStateSheet(() => guests++),
@@ -455,69 +601,84 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                     ],
                   ),
                   SizedBox(height: 8),
-                  Text('Dịch vụ thêm:', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Dịch vụ thêm:',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   Wrap(
                     spacing: 8,
-                    children: allServices.map((service) => FilterChip(
-                      label: Text(service),
-                      selected: extraServices.contains(service),
-                      onSelected: (selected) {
-                        setStateSheet(() {
-                          if (selected) {
-                            extraServices.add(service);
-                          } else {
-                            extraServices.remove(service);
-                          }
-                        });
-                      },
-                    )).toList(),
+                    children: allServices
+                        .map(
+                          (service) => FilterChip(
+                            label: Text(service),
+                            selected: extraServices.contains(service),
+                            onSelected: (selected) {
+                              setStateSheet(() {
+                                if (selected) {
+                                  extraServices.add(service);
+                                } else {
+                                  extraServices.remove(service);
+                                }
+                              });
+                            },
+                          ),
+                        )
+                        .toList(),
                   ),
                   SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                        onPressed: selectedDate == null ? null : () async {
-                          final dbHelper = ExcursionDbHelper();
-                          final excursionId = excursion['id'];
-                          // Fetch user name from user db
-                          final prefs = await SharedPreferences.getInstance();
-                          final email = prefs.getString('userEmail');
-                          String userName = '';
-                          if (email != null) {
-                            final user = await UserDbHelper().getUserByEmail(email);
-                            if (user != null) userName = user.fullName;
-                          }
-                          await dbHelper.bookExcursion(
-                            excursionId: excursionId,
-                            userEmail: currentUserEmail,
-                            userName: userName,
-                            bookingTime: DateTime.now().toIso8601String(),
-                            bookingDate: selectedDate!.toIso8601String(),
-                            numberOfPeople: guests,
-                            status: extraServices.join(', '),
-                          );
-                          await _loadBookings();
-                          Navigator.pop(context);
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text('Đặt tour thành công!'),
-                              content: Text('Bạn đã đặt tour thành công cho ${excursion['title']}.'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('Đóng'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onPressed: selectedDate == null
+                            ? null
+                            : () async {
+                                final dbHelper = ExcursionDbHelper();
+                                final excursionId = excursion['id'];
+                                // Fetch user name from user db
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final email = prefs.getString('userEmail');
+                                String userName = '';
+                                if (email != null) {
+                                  final user = await UserDbHelper()
+                                      .getUserByEmail(email);
+                                  if (user != null) userName = user.fullName;
+                                }
+                                await dbHelper.bookExcursion(
+                                  excursionId: excursionId,
+                                  userEmail: currentUserEmail,
+                                  userName: userName,
+                                  bookingTime: DateTime.now().toIso8601String(),
+                                  bookingDate: selectedDate!.toIso8601String(),
+                                  numberOfPeople: guests,
+                                  status: extraServices.join(', '),
+                                );
+                                await _loadBookings();
+                                Navigator.pop(context);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Đặt tour thành công!'),
+                                    content: Text(
+                                      'Bạn đã đặt tour thành công cho ${excursion['title']}.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text('Đóng'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                         child: Text('Booking'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF80DEEA),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ],
@@ -531,7 +692,10 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
     );
   }
 
-  void _showSupportDialogForBooking(BuildContext context, ExcursionBooking booking) {
+  void _showSupportDialogForBooking(
+    BuildContext context,
+    ExcursionBooking booking,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -542,7 +706,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
           'Ngày: ${_formatDate(booking.bookingDate)}\n'
           'Khách: ${booking.numberOfPeople}\n'
           'Dịch vụ: ${booking.status}\n\n'
-          'Bộ phận hỗ trợ sẽ liên hệ với bạn sớm nhất.'
+          'Bộ phận hỗ trợ sẽ liên hệ với bạn sớm nhất.',
         ),
         actions: [
           TextButton(
@@ -564,23 +728,39 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: bookings.map((b) => Card(
-                color: Color(0xFFD1E8F1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                margin: EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  leading: Icon(Icons.event_available, color: Color(0xFF80DEEA)),
-                  title: Text(_getExcursionTitleById(b.excursionId), style: TextStyle(color: Color(0xFF01579B))),
-                  subtitle: Text(
-                    'Tên: ${b.userName}\nEmail: ${b.userEmail}\nNgày: ${b.bookingDate.isNotEmpty ? _formatDate(b.bookingDate) : ''}\nKhách: ${b.numberOfPeople}\nDịch vụ: ${b.status}'
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.support_agent, color: Color(0xFF0288D1)),
-                    tooltip: 'Yêu cầu hỗ trợ',
-                    onPressed: () => _showSupportDialogForBooking(context, b),
-                  ),
-                ),
-              )).toList(),
+              children: bookings
+                  .map(
+                    (b) => Card(
+                      color: Color(0xFFD1E8F1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.event_available,
+                          color: Color(0xFF80DEEA),
+                        ),
+                        title: Text(
+                          _getExcursionTitleById(b.excursionId),
+                          style: TextStyle(color: Color(0xFF01579B)),
+                        ),
+                        subtitle: Text(
+                          'Tên: ${b.userName}\nEmail: ${b.userEmail}\nNgày: ${b.bookingDate.isNotEmpty ? _formatDate(b.bookingDate) : ''}\nKhách: ${b.numberOfPeople}\nDịch vụ: ${b.status}',
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            Icons.support_agent,
+                            color: Color(0xFF0288D1),
+                          ),
+                          tooltip: 'Yêu cầu hỗ trợ',
+                          onPressed: () =>
+                              _showSupportDialogForBooking(context, b),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ),

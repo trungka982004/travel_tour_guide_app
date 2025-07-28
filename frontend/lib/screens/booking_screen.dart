@@ -6,6 +6,7 @@ import '../data/room_data.dart';
 import '../data/room_booking_db_helper.dart';
 import '../models/room_booking.dart';
 import 'booking_history_screen.dart';
+import '../data/user_db_helper.dart';
 
 class BookingScreen extends StatefulWidget {
   final Function(int) onBackToHome;
@@ -30,6 +31,42 @@ class _BookingScreenState extends State<BookingScreen> {
   String _discountCode = '';
   String _typeFilter = 'Tất cả';
   String _bookingId = '';
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _prefillUserInfo();
+  }
+
+  Future<void> _prefillUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('userEmail');
+    if (email != null) {
+      final user = await UserDbHelper().getUserByEmail(email);
+      if (user != null) {
+        setState(() {
+          _guestName = user.fullName;
+          _guestPhone = user.phone;
+          _guestEmail = user.email;
+          _nameController.text = user.fullName;
+          _phoneController.text = user.phone;
+          _emailController.text = user.email;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
 
   List<String> get _typeOptions {
     final types = allRooms.map((r) => r.name.split(' ')[0]).toSet().toList();
@@ -153,71 +190,126 @@ class _BookingScreenState extends State<BookingScreen> {
         SizedBox(height: 8),
         Row(
           children: [
-            Text('Bộ lọc: ', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+            Text(
+              'Bộ lọc: ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             SizedBox(width: 8),
             DropdownButton<String>(
               value: _typeFilter,
-              items: _typeOptions.map((c) => DropdownMenuItem(value: c, child: Text(c, style: TextStyle(color: Color(0xFF01579B))))).toList(),
+              items: _typeOptions
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c,
+                      child: Text(
+                        c,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
               onChanged: (v) => setState(() => _typeFilter = v ?? 'Tất cả'),
-              hint: Text('Loại phòng', style: TextStyle(color: Color(0xFF01579B))),
-              dropdownColor: Color(0xFFD1E8F1),
+              hint: Text(
+                'Loại phòng',
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              ),
+              dropdownColor: Theme.of(context).cardColor,
             ),
           ],
         ),
         SizedBox(height: 12),
-        ..._filteredRooms.map((room) => Card(
-              margin: EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              color: Color(0xFFD1E8F1),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Image.asset(room.imageAsset, height: 160, width: double.infinity, fit: BoxFit.cover),
+        ..._filteredRooms.map(
+          (room) => Card(
+            margin: EdgeInsets.only(bottom: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            color: Theme.of(context).cardColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.asset(
+                    room.imageAsset,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(room.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF01579B))),
-                        SizedBox(height: 4),
-                        Text('${room.capacity} | ${room.size} | ${room.bed}', style: TextStyle(color: Colors.teal[700])),
-                        SizedBox(height: 8),
-                        Text(room.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[700])),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedRoom = room;
-                                  _step = 1;
-                                });
-                              },
-                              child: Text('Xem chi tiết'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
-                            ),
-                            SizedBox(width: 12),
-                            OutlinedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedRoom = room;
-                                  _step = 2;
-                                });
-                              },
-                              child: Text('Đặt ngay', style: TextStyle(color: Color(0xFF80DEEA))),
-                              style: OutlinedButton.styleFrom(side: BorderSide(color: Color(0xFF80DEEA))),
-                            ),
-                          ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        room.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${room.capacity} | ${room.size} | ${room.bed}',
+                        style: TextStyle(color: Colors.teal[700]),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        room.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedRoom = room;
+                                _step = 1;
+                              });
+                            },
+                            child: Text('Xem chi tiết'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedRoom = room;
+                                _step = 2;
+                              });
+                            },
+                            child: Text(
+                              'Đặt ngay',
+                              style: TextStyle(color: Color(0xFF80DEEA)),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: Color(0xFF80DEEA)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -230,19 +322,47 @@ class _BookingScreenState extends State<BookingScreen> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: Image.asset(room.imageAsset, height: 220, width: double.infinity, fit: BoxFit.cover),
+          child: Image.asset(
+            room.imageAsset,
+            height: 220,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
         ),
         SizedBox(height: 16),
-        Text(room.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF01579B))),
+        Text(
+          room.name,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            color: Color(0xFF01579B),
+          ),
+        ),
         SizedBox(height: 8),
-        Text('${room.size} | ${room.capacity} | ${room.bed}', style: TextStyle(color: Colors.teal[700])),
+        Text(
+          '${room.size} | ${room.capacity} | ${room.bed}',
+          style: TextStyle(color: Colors.teal[700]),
+        ),
         SizedBox(height: 8),
         Text(room.description, style: TextStyle(color: Colors.grey[700])),
         SizedBox(height: 12),
-        Text('Tiện nghi:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+        Text(
+          'Tiện nghi:',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF01579B),
+          ),
+        ),
         Wrap(
           spacing: 8,
-          children: room.amenities.map((a) => Chip(label: Text(a, style: TextStyle(color: Colors.white)), backgroundColor: Color(0xFF80DEEA))).toList(),
+          children: room.amenities
+              .map(
+                (a) => Chip(
+                  label: Text(a, style: TextStyle(color: Colors.white)),
+                  backgroundColor: Color(0xFF80DEEA),
+                ),
+              )
+              .toList(),
         ),
         SizedBox(height: 16),
         Row(
@@ -255,7 +375,10 @@ class _BookingScreenState extends State<BookingScreen> {
                   });
                 },
                 child: Text('Đặt phòng'),
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ),
             SizedBox(width: 12),
@@ -266,8 +389,17 @@ class _BookingScreenState extends State<BookingScreen> {
                     _step = 0; // Go back to room list
                   });
                 },
-                child: Text('Quay lại', style: TextStyle(color: Color(0xFF80DEEA))),
-                style: OutlinedButton.styleFrom(side: BorderSide(color: Color(0xFF80DEEA))),
+                child: Text(
+                  'Quay lại',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ),
           ],
@@ -282,9 +414,22 @@ class _BookingScreenState extends State<BookingScreen> {
       key: ValueKey(2),
       padding: EdgeInsets.all(16),
       children: [
-        Text('Thông Tin Đặt Phòng', style: TextStyle(color: Color(0xFF01579B), fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          'Thông Tin Đặt Phòng',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         SizedBox(height: 12),
-        Text(room.name, style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+        Text(
+          room.name,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
         SizedBox(height: 8),
         Row(
           children: [
@@ -296,13 +441,34 @@ class _BookingScreenState extends State<BookingScreen> {
                     initialDate: _checkIn ?? DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 365)),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                            primary: Theme.of(context).colorScheme.primary,
+                            onPrimary: Colors.white,
+                            surface: Theme.of(context).cardColor,
+                            onSurface:
+                                Theme.of(context).textTheme.bodyLarge?.color ??
+                                Colors.black,
+                          ),
+                          dialogBackgroundColor: Theme.of(context).cardColor,
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (picked != null) setState(() => _checkIn = picked);
                 },
-                child: Text(_checkIn == null
-                    ? 'Chọn ngày nhận phòng'
-                    : 'Nhận phòng: ${_checkIn!.day}/${_checkIn!.month}/${_checkIn!.year}'),
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
+                child: Text(
+                  _checkIn == null
+                      ? 'Chọn ngày nhận phòng'
+                      : 'Nhận phòng: ${_checkIn!.day}/${_checkIn!.month}/${_checkIn!.year}',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ),
             SizedBox(width: 8),
@@ -311,16 +477,39 @@ class _BookingScreenState extends State<BookingScreen> {
                 onPressed: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: _checkOut ?? (_checkIn ?? DateTime.now()).add(Duration(days: 1)),
+                    initialDate:
+                        _checkOut ??
+                        (_checkIn ?? DateTime.now()).add(Duration(days: 1)),
                     firstDate: _checkIn ?? DateTime.now(),
                     lastDate: DateTime.now().add(Duration(days: 366)),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                            primary: Theme.of(context).colorScheme.primary,
+                            onPrimary: Colors.white,
+                            surface: Theme.of(context).cardColor,
+                            onSurface:
+                                Theme.of(context).textTheme.bodyLarge?.color ??
+                                Colors.black,
+                          ),
+                          dialogBackgroundColor: Theme.of(context).cardColor,
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (picked != null) setState(() => _checkOut = picked);
                 },
-                child: Text(_checkOut == null
-                    ? 'Chọn ngày trả phòng'
-                    : 'Trả phòng: ${_checkOut!.day}/${_checkOut!.month}/${_checkOut!.year}'),
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
+                child: Text(
+                  _checkOut == null
+                      ? 'Chọn ngày trả phòng'
+                      : 'Trả phòng: ${_checkOut!.day}/${_checkOut!.month}/${_checkOut!.year}',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ),
           ],
@@ -331,52 +520,101 @@ class _BookingScreenState extends State<BookingScreen> {
             Expanded(
               child: DropdownButtonFormField<int>(
                 value: _adults,
-                decoration: InputDecoration(labelText: 'Người lớn', labelStyle: TextStyle(color: Color(0xFF01579B))),
+                decoration: InputDecoration(
+                  labelText: 'Người lớn',
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
                 items: List.generate(5, (i) => i + 1)
-                    .map((v) => DropdownMenuItem(value: v, child: Text('$v', style: TextStyle(color: Color(0xFF01579B)))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(
+                          '$v',
+                          style: TextStyle(color: Color(0xFF01579B)),
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _adults = v ?? 2),
-                dropdownColor: Color(0xFFD1E8F1),
+                dropdownColor: Theme.of(context).cardColor,
               ),
             ),
             SizedBox(width: 8),
             Expanded(
               child: DropdownButtonFormField<int>(
                 value: _children,
-                decoration: InputDecoration(labelText: 'Trẻ em', labelStyle: TextStyle(color: Color(0xFF01579B))),
+                decoration: InputDecoration(
+                  labelText: 'Trẻ em',
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
                 items: List.generate(5, (i) => i)
-                    .map((v) => DropdownMenuItem(value: v, child: Text('$v', style: TextStyle(color: Color(0xFF01579B)))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(
+                          '$v',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _children = v ?? 0),
-                dropdownColor: Color(0xFFD1E8F1),
+                dropdownColor: Theme.of(context).cardColor,
               ),
             ),
           ],
         ),
         SizedBox(height: 12),
         TextFormField(
-          decoration: InputDecoration(labelText: 'Họ tên', labelStyle: TextStyle(color: Color(0xFF01579B))),
+          controller: _nameController,
+          decoration: InputDecoration(
+            labelText: 'Họ tên',
+            labelStyle: TextStyle(color: Color(0xFF01579B)),
+          ),
           onChanged: (v) => _guestName = v,
         ),
         SizedBox(height: 8),
         TextFormField(
-          decoration: InputDecoration(labelText: 'SĐT', labelStyle: TextStyle(color: Color(0xFF01579B))),
+          controller: _phoneController,
+          decoration: InputDecoration(
+            labelText: 'SĐT',
+            labelStyle: TextStyle(color: Color(0xFF01579B)),
+          ),
           keyboardType: TextInputType.phone,
           onChanged: (v) => _guestPhone = v,
         ),
         SizedBox(height: 8),
         TextFormField(
-          decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Color(0xFF01579B))),
+          controller: _emailController,
+          decoration: InputDecoration(
+            labelText: 'Email',
+            labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
           keyboardType: TextInputType.emailAddress,
           onChanged: (v) => _guestEmail = v,
         ),
         SizedBox(height: 8),
         TextFormField(
-          decoration: InputDecoration(labelText: 'Ghi chú', labelStyle: TextStyle(color: Color(0xFF01579B))),
+          decoration: InputDecoration(
+            labelText: 'Ghi chú',
+            labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
           onChanged: (v) => _note = v,
         ),
         SizedBox(height: 12),
-        Text('Thanh Toán:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+        Text(
+          'Thanh Toán:',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
         Row(
           children: [
             Expanded(
@@ -384,7 +622,12 @@ class _BookingScreenState extends State<BookingScreen> {
                 value: 'Trả tại Resort',
                 groupValue: _payment,
                 onChanged: (v) => setState(() => _payment = v!),
-                title: Text('Trả tại Resort', style: TextStyle(color: Color(0xFF01579B))),
+                title: Text(
+                  'Trả tại Resort',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -392,7 +635,12 @@ class _BookingScreenState extends State<BookingScreen> {
                 value: 'Online',
                 groupValue: _payment,
                 onChanged: (v) => setState(() => _payment = v!),
-                title: Text('Online', style: TextStyle(color: Color(0xFF01579B))),
+                title: Text(
+                  'Online',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ),
           ],
@@ -402,31 +650,54 @@ class _BookingScreenState extends State<BookingScreen> {
             padding: const EdgeInsets.only(left: 8.0),
             child: Row(
               children: [
-                Text('VNPay / ZaloPay / MoMo', style: TextStyle(color: Color(0xFF01579B))),
+                Text(
+                  'VNPay / ZaloPay / MoMo',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ],
             ),
           ),
         SizedBox(height: 8),
         TextFormField(
-          decoration: InputDecoration(labelText: 'Mã giảm giá', labelStyle: TextStyle(color: Color(0xFF01579B))),
+          decoration: InputDecoration(
+            labelText: 'Mã giảm giá',
+            labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+          ),
           onChanged: (v) => _discountCode = v,
         ),
         SizedBox(height: 16),
         Card(
-          color: Color(0xFFD1E8F1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          color: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tóm tắt đơn hàng:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF01579B))),
+                Text(
+                  'Tóm tắt đơn hàng:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Phòng: ${room.name}', style: TextStyle(color: Color(0xFF01579B))),
-                Text('Ngày: ' +
-                    (_checkIn != null && _checkOut != null
-                        ? '${_checkIn!.day}/${_checkIn!.month} - ${_checkOut!.day}/${_checkOut!.month}'
-                        : 'Chưa chọn')),
+                Text(
+                  'Phòng: ${room.name}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  'Ngày: ' +
+                      (_checkIn != null && _checkOut != null
+                          ? '${_checkIn!.day}/${_checkIn!.month} - ${_checkOut!.day}/${_checkOut!.month}'
+                          : 'Chưa chọn'),
+                ),
                 Text('Khách: $_adults NL + $_children TE'),
                 Text('Tổng: ...'),
               ],
@@ -438,7 +709,11 @@ class _BookingScreenState extends State<BookingScreen> {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: (_checkIn != null && _checkOut != null && _guestName.isNotEmpty && _guestPhone.isNotEmpty)
+                onPressed:
+                    (_checkIn != null &&
+                        _checkOut != null &&
+                        _guestName.isNotEmpty &&
+                        _guestPhone.isNotEmpty)
                     ? () {
                         setState(() {
                           _bookingId = Uuid().v4();
@@ -448,7 +723,10 @@ class _BookingScreenState extends State<BookingScreen> {
                       }
                     : null,
                 child: Text('Xác nhận đặt phòng'),
-                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ),
             SizedBox(width: 12),
@@ -459,8 +737,17 @@ class _BookingScreenState extends State<BookingScreen> {
                     _step = 1; // Go back to room detail
                   });
                 },
-                child: Text('Quay lại', style: TextStyle(color: Color(0xFF80DEEA))),
-                style: OutlinedButton.styleFrom(side: BorderSide(color: Color(0xFF80DEEA))),
+                child: Text(
+                  'Quay lại',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             ),
           ],
@@ -478,17 +765,36 @@ class _BookingScreenState extends State<BookingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle, color: Color(0xFF80DEEA), size: 64),
+            Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+              size: 64,
+            ),
             SizedBox(height: 16),
-            Text('Đặt phòng thành công!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Color(0xFF01579B))),
+            Text(
+              'Đặt phòng thành công!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             SizedBox(height: 8),
-            Text('Mã đơn: $_bookingId', style: TextStyle(color: Color(0xFF01579B))),
+            Text(
+              'Mã đơn: $_bookingId',
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
             SizedBox(height: 8),
-            Text('Thời gian: ' +
-                (_checkIn != null && _checkOut != null
-                    ? '${_checkIn!.day}/${_checkIn!.month} - ${_checkOut!.day}/${_checkOut!.month}'
-                    : '')),
-            Text('Phòng: ${room.name}', style: TextStyle(color: Color(0xFF01579B))),
+            Text(
+              'Thời gian: ' +
+                  (_checkIn != null && _checkOut != null
+                      ? '${_checkIn!.day}/${_checkIn!.month} - ${_checkOut!.day}/${_checkOut!.month}'
+                      : ''),
+            ),
+            Text(
+              'Phòng: ${room.name}',
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
             Text('Khách: $_adults NL + $_children TE'),
             SizedBox(height: 8),
             Text('Tổng tiền: ...'),
@@ -512,7 +818,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 });
               },
               child: Text('Trang chủ'),
-              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF80DEEA), foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
             ),
           ],
         ),
