@@ -244,17 +244,11 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 SizedBox(height: 12),
                 Container(
-                  height: 200,
+                  height: 240,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     children: [
-                      _insightInfoCard(
-                        title: 'Weather',
-                        icon: Icons.wb_sunny,
-                        subtitle: '# Sunny, 28°C',
-                        bannerColor: Color(0xFFBBDEFB),
-                      ),
                       _eventInsightCard(
                         title: 'Beach Party Tonight!',
                         imageAsset: 'assets/home/beach.png',
@@ -352,8 +346,7 @@ class _HomeScreenState extends State<HomeScreen>
                         context,
                         Icons.settings,
                         'Settings',
-                        null,
-                        tabIndex: 3,
+                        SettingsScreen(onAvatarChanged: _onAvatarChanged),
                         iconSize: 24,
                         textSize: 12,
                         containerPadding: 8,
@@ -381,8 +374,8 @@ class _HomeScreenState extends State<HomeScreen>
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     children: [
                       _localCard(
-                        'Water Sports',
-                        'Dive into thrilling ocean adventures.',
+                        'Sports',
+                        'High quality sports facilities',
                         'assets/home/sport.png',
                       ),
                       _localCard(
@@ -474,71 +467,77 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Icon(icon, color: Color(0xFF01579B), size: 36),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFF01579B),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 6),
-                if (subtitle != null)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle,
-                    style: TextStyle(color: Color(0xFF455A64), fontSize: 13),
-                    maxLines: 2,
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color(0xFF01579B),
+                    ),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                if (location != null) ...[
                   SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.place, color: Color(0xFF90A4AE), size: 15),
-                      SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          location,
-                          style: TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 12,
+                  if (subtitle != null)
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: Color(0xFF455A64), fontSize: 12),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (location != null) ...[
+                    SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Icon(Icons.place, color: Color(0xFF90A4AE), size: 14),
+                        SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            location,
+                            style: TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-                if (time != null) ...[
-                  SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        color: Color(0xFF90A4AE),
-                        size: 15,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          color: Color(0xFF455A64),
-                          fontSize: 12,
+                      ],
+                    ),
+                  ],
+                  if (time != null) ...[
+                    SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          color: Color(0xFF90A4AE),
+                          size: 14,
                         ),
-                      ),
-                    ],
-                  ),
+                        SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            time,
+                            style: TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],
@@ -590,81 +589,95 @@ class _HomeScreenState extends State<HomeScreen>
               fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.event, color: Color(0xFF01579B), size: 20),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Color(0xFF01579B),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(Icons.place, color: Color(0xFF90A4AE), size: 16),
-                    SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        location,
-                        style: TextStyle(
-                          color: Color(0xFF455A64),
-                          fontSize: 13,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, color: Color(0xFF90A4AE), size: 16),
-                    SizedBox(width: 4),
-                    Text(
-                      '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
-                      style: TextStyle(color: Color(0xFF455A64), fontSize: 13),
-                    ),
-                    if (countdown.isNotEmpty) ...[
-                      SizedBox(width: 8),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF80DEEA).withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.event, color: Color(0xFF01579B), size: 18),
+                      SizedBox(width: 4),
+                      Expanded(
                         child: Text(
-                          countdown,
+                          title,
                           style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                             color: Color(0xFF01579B),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
-                  ],
-                ),
-              ],
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.place, color: Color(0xFF90A4AE), size: 14),
+                      SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: TextStyle(
+                            color: Color(0xFF455A64),
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 3),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            color: Color(0xFF90A4AE),
+                            size: 14,
+                          ),
+                          SizedBox(width: 3),
+                          Text(
+                            '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (countdown.isNotEmpty) ...[
+                        SizedBox(height: 3),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF80DEEA).withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            countdown,
+                            style: TextStyle(
+                              color: Color(0xFF01579B),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -704,6 +717,7 @@ class _HomeScreenState extends State<HomeScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
               title,
@@ -718,6 +732,8 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: 6),
             Text(
@@ -732,6 +748,8 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

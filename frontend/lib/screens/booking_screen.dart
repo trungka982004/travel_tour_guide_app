@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
@@ -105,6 +106,10 @@ class _BookingScreenState extends State<BookingScreen> {
         leading: BackButton(
           color: Colors.white,
           onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
             if (_step == 3) {
               setState(() {
                 _step = 0;

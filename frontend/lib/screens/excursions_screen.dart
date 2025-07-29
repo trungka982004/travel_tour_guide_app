@@ -226,7 +226,7 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
               ),
               SizedBox(height: 12),
               Container(
-                height: 220,
+                height: 240,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 16),
@@ -329,6 +329,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                   fontSize: featured ? 20 : 16,
                   shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               if (showStars) ...[
                 SizedBox(height: 4),
@@ -353,6 +355,8 @@ class _ExcursionsScreenState extends State<ExcursionsScreen> {
                   fontSize: featured ? 14 : 12,
                   shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

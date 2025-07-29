@@ -368,7 +368,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
               ),
               SizedBox(height: 8),
               SizedBox(
-                height: 180,
+                height: 200,
                 child: ListView(
                   controller: _scrollController,
                   scrollDirection: Axis.horizontal,
@@ -483,49 +483,53 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dish['name'],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Color(0xFF01579B),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dish['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Color(0xFF01579B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Row(
-                    children: List.generate(
-                      5,
-                      (i) => i < (dish['rating'] ?? 5)
-                          ? Icon(Icons.star, color: Colors.amber, size: 14)
-                          : Icon(
-                              Icons.star_border,
-                              color: Colors.amber,
-                              size: 14,
-                            ),
+                    SizedBox(height: 2),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => i < (dish['rating'] ?? 5)
+                            ? Icon(Icons.star, color: Colors.amber, size: 14)
+                            : Icon(
+                                Icons.star_border,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    dish['price'],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal[700],
-                      fontSize: 13,
+                    SizedBox(height: 2),
+                    Text(
+                      dish['price'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal[700],
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    dish['desc'],
-                    style: TextStyle(fontSize: 11, color: Colors.grey[700]),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    SizedBox(height: 2),
+                    Text(
+                      dish['desc'],
+                      style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -555,6 +559,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             fontWeight: FontWeight.bold,
             color: Color(0xFF01579B),
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,10 +571,14 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.teal[700],
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               dish['desc'],
               style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -1101,40 +1111,44 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    dish['name'],
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Color(0xFF01579B),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dish['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Color(0xFF01579B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: List.generate(
-                      5,
-                      (i) => i < (dish['rating'] ?? 5)
-                          ? Icon(Icons.star, color: Colors.amber, size: 16)
-                          : Icon(
-                              Icons.star_border,
-                              color: Colors.amber,
-                              size: 16,
-                            ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => i < (dish['rating'] ?? 5)
+                            ? Icon(Icons.star, color: Colors.amber, size: 16)
+                            : Icon(
+                                Icons.star_border,
+                                color: Colors.amber,
+                                size: 16,
+                              ),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    dish['desc'],
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    SizedBox(height: 4),
+                    Text(
+                      dish['desc'],
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

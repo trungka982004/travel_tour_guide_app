@@ -406,29 +406,28 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
         children: [
           Row(
             children: [
-              Text(
-                'Danh sách hoạt động',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+              Expanded(
+                child: Text(
+                  'Danh sách hoạt động',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
               if (_displayedActivities.length > 8)
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _showAll = !_showAll;
-                      });
-                    },
-                    child: Text(
-                      _showAll ? 'Thu gọn' : 'Xem thêm',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _showAll = !_showAll;
+                    });
+                  },
+                  child: Text(
+                    _showAll ? 'Thu gọn' : 'Xem thêm',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -912,11 +911,14 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                activity.image,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  activity.image,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
               SizedBox(width: 12),
               Expanded(
@@ -930,6 +932,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 4),
                     Text(
@@ -938,6 +942,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                         fontSize: 14,
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      activity.location,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
